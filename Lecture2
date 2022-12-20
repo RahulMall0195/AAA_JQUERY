@@ -1,27 +1,85 @@
 
-<!DOCTYPE html>
-<html>
-<head>
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
-<script type="text/javascript" >
-$(document).ready(function(){
-  $("#BTN_Show").click(function(){
-    $("#tbl2").hide();
-  });
-   $("#hide").click(function(){
-    $("#tbl2").show();
-    });
-});
-</script>
-</head>
-<body>
-<center>
-<table id="tbl2">
-<tr><td>a</td><td>a</td><td>a</td></tr>
-<tr><td>a</td><td>a</td><td>a</td></tr>
-<tr><td>a</td><td>a</td><td>a</td></tr>
-</table><br>
-<button id="BTN_Show">Hide<button id="hide">Show</button></button>
-</center>
-</body>
-</html>
+
+
+                    1.            <!DOCTYPE html>
+                                  <html>
+                                  <head>
+                                  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
+                                  <script type="text/javascript" >
+                                  $(document).ready(function(){
+                                    $("#BTN_Show").click(function(){
+                                      $("#tbl2").hide();
+                                    });
+                                     $("#hide").click(function(){
+                                      $("#tbl2").show();
+                                      });
+                                  });
+                                  </script>
+                                  </head>
+                                  <body>
+                                  <center>
+                                  <table id="tbl2">
+                                  <tr><td>a</td><td>a</td><td>a</td></tr>
+                                  <tr><td>a</td><td>a</td><td>a</td></tr>
+                                  <tr><td>a</td><td>a</td><td>a</td></tr>
+                                  </table><br>
+                                  <button id="BTN_Show">Hide<button id="hide">Show</button></button>
+                                  </center>
+                                  </body>
+                                  </html>
+                                  
+  @@@@ jQuery Effects - Fading ----                                  
+                                  
+                     2.           <!DOCTYPE html>
+                                  <html>
+                                  <head>
+                                  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
+                                  <script>
+                                  $(document).ready(function(){
+                                    $("button").click(function(){
+                                      $("#div1").fadeIn(9000);
+                                      $("#div2").fadeIn(6000);
+                                      $("#div3").fadeIn(1000);
+                                    });
+                                  });
+                                  </script>
+                                  </head>
+                                  <body>
+
+
+                                  <button>Click to fade in boxes</button><br><br>
+
+                                  <div id="div1" style="width:80px;height:80px;display:none;background-color:red;"></div><br>
+                                  <div id="div2" style="width:80px;height:80px;display:none;background-color:green;"></div><br>
+                                  <div id="div3" style="width:80px;height:80px;display:none;background-color:blue;"></div>
+
+                                  </body>
+                                  </html>
+                                  
+                                  
+                   3.            $("button").click(function(){
+                                 $("#div1").fadeOut();
+                                 $("#div2").fadeOut("slow");
+                                 $("#div3").fadeOut(3000);
+                                 });           
+                                 
+                                 
+                                 
+                   4.           $("button").click(function(){
+                                $("#div1").fadeToggle();
+                                $("#div2").fadeToggle("slow");
+                                $("#div3").fadeToggle(3000);
+                                });
+                      
+                      
+                                
+                   5.           $("button").click(function(){
+                                $("#div1").fadeTo("slow", 0.15);
+                                $("#div2").fadeTo("slow", 0.4);
+                                $("#div3").fadeTo("slow", 0.7);
+                                });   
+                   
+                   
+                  6.            
+                                
+
