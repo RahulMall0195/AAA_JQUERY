@@ -1,0 +1,62 @@
+------------------------------------------------------------------------------20/12/2022-------------------------------------------------------------------------------
+
+ 
+           1.            JQUERY       -      jQuery is a JavaScript Library.
+                                             The purpose of jQuery is to make it much easier to use JavaScript on your website.
+                                             jQuery also simplifies a lot of the complicated things from JavaScript, like AJAX calls and DOM manipulation.
+                                     
+                        
+                        
+           2.            The jQuery library contains the following features:            
+                                     
+                                         *    HTML/DOM manipulation
+                                         *    CSS manipulation
+                                         *    HTML event methods
+                                         *    Effects and animations
+                                         *    AJAX
+                                         *    Utilities
+                                         
+                                         
+           3.             If you don't want to download and host jQuery yourself, you can include it from a CDN (Content Delivery Network).                
+           
+                                         <head>
+                                         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
+                                         </head>
+                                         
+                                         
+          4.              With jQuery you select (query) HTML elements and perform "actions" on them.
+          
+                          
+                          
+          
+          5.             The Document Ready Event  -  This is to prevent any jQuery code from running before the document is finished loading (is ready).
+          
+                                         $(document).ready(function(){
+                                       
+                                         });
+          
+          
+          6.
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
