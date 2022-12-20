@@ -36,9 +36,158 @@
                                          });
           
           
-          6.
+          6. JQuery Selectors -                 
+          
+                         jQuery selectors are used to "find" (or select) HTML elements based on their name, id, classes, types, attributes, 
+                         values of attributes and much more. It's based on the existing CSS Selectors, and in addition, it has some own custom selectors.
+                         
+                           Hide() -        
+                                   
+                          *        <!DOCTYPE html>
+                                     <html>
+                                     <head>
+                                     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
+                                     <script>
+                                     $(document).ready(function(){
+                                       $("button").click(function(){
+                                         $("p").hide();
+                                       });
+                                     });
+                                     </script>
+                                     </head>
+                                     <body>
+
+                                     <p>This is a paragraph.</p>
+                                     <p>This is another paragraph.</p>
+
+                                     <button>Click me to hide paragraphs</button>
+                                     </body>
+                                     </html>
+                                     
+                                     
+                          *          $(document).ready(function(){
+                                      $("button").click(function(){
+                                        $("#test").hide();
+                                      });
+                                    });                                  
+
+
+          7. jQuery Selectors -    
+          
+                                   $("*")                   	Selects all elements 	
+                                   $(this)                  	Selects the current HTML element 	
+                                   $("p.intro")             	Selects all <p> elements with class="intro" 	
+                                   $("p:first")             	Selects the first <p> element 	
+                                   $("ul li:first")          Selects the first <li> element of the first <ul> 	
+                                   $("ul li:first-child")   	Selects the first <li> element of every <ul> 	
+                                   $("[href]") 	             Selects all elements with an href attribute 	
+                                   $("a[target='_blank']")  	Selects all <a> elements with a target attribute value equal to "_blank" 	
+                                   $("a[target!='_blank']") 	Selects all <a> elements with a target attribute value NOT equal to "_blank" 	
+                                   $(":button")             	Selects all <button> elements and <input> elements of type="button" 	
+                                   $("tr:even") 	            Selects all even <tr> elements 	
+                                   $("tr:odd")              	Selects all odd <tr> elements
+                                   
+                                   
+                                   
+          8.jQuery Event Methods -  All the different visitors' actions that a web page can respond to are called events.
           
           
+                                     Mouse Events 	Keyboard Events 	Form Events 	Document/Window Events
+                                     
+                                        click          	keypress      	submit 	   load
+                                        dblclick       	keydown       	change    	resize
+                                        mouseenter     	keyup 	        focus 	    scroll
+                                        mouseleave 	   	blur 	         unload
+          
+          
+          9.                           
+                                        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
+                                        <script>
+                                        $(document).ready(function(){
+                                          $("p").click(function(){
+                                            $("*").hide();
+                                          });
+                                        });
+                                        </script
+                                        <p>Click me away!</p>
+                                        <p>Click me too!</p>
+                                        
+                                        
+                                        
+          10.                           $("p").dblclick(function(){
+                                        $(this).hide();
+                                        });
+                                        
+                                        
+                                        
+          11.                           $("#p1").mouseenter(function(){
+                                        alert("You entered p1!");
+                                        });
+                                      
+                                      
+                                       
+          12.                           $("#p1").mouseleave(function(){
+                                        alert("Bye! You now leave p1!");
+                                        });
+       
+       
+       
+          13.                          $("#p1").mousedown(function(){
+                                       alert("Mouse down over p1!");
+                                       });
+                                       
+                                   
+                                   
+          14.                          $("#p1").mouseup(function(){
+                                       alert("Mouse up over p1!");
+                                       });    
+                                    
+                                    
+                                       
+          15.                          $("#p1").hover(function(){
+                                       alert("You entered p1!");
+                                       },
+                                       function(){
+                                       alert("Bye! You now leave p1!");
+                                       });       
+                                 
+                                 
+           
+          16.                          $("input").focus(function(){
+                                       $(this).css("background-color", "#cccccc");
+                                       });
+                                       
+                                       
+           
+           
+          17.                          $("input").blur(function(){
+                                       $(this).css("background-color", "#ffffff");
+                                       });
+                                       
+                                       
+                                       
+                                       
+          18.                          $("p").on("click", function(){
+                                       $(this).hide();
+                                       }); 
+                                       
+                 
+                          
+                                       
+          19.                      $("p").on({
+                                    mouseenter: function(){
+                                      $(this).css("background-color", "lightgray");
+                                    },
+                                    mouseleave: function(){
+                                      $(this).css("background-color", "lightblue");
+                                    },
+                                    click: function(){
+                                      $(this).css("background-color", "yellow");
+                                    }
+                                    });        
+                                    
+                                    
+                                    
           
           
           
