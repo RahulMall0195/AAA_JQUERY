@@ -1,4 +1,42 @@
-         $(document).ready(function(){
+ <table id="Tbl2" style="height:30px;" runat="server">
+        <tr style="border: 1px solid maroon">
+            <td id="dtlsVoucher" colspan="16" style="width:1360px;background-color: #fcba03; font-size:15px;
+                font-weight: bold; height: 20px;">
+                Voucher Details
+            </td>
+        </tr>
+        <tr>
+            <td style="height:30px;width:1px;text-align:right;font-size:13px; font-weight:bold;">
+                Request For :
+            </td>
+            <td style="width:380px; height:30px; text-align:left;">
+                
+                            <select class="requestfor" id="DDLRequestFor"  style="width:200px;height:28px;" runat="server" >
+                                  <option  value="default">Select Request For</option>
+                                  <option  value="a">Change Date</option>
+                                  <option  value="b">Change Account Head</option>
+                                  <option  value="c">Change Narration</option>
+                             </select>
+               <%--
+                <asp:DropDownList class="FA_ddlNormal" ID="DDLRequestFor" Style="width:200px;" runat="server">
+                    <asp:ListItem  Selected="True" Value="0">Select Request For </asp:ListItem>
+                    <asp:ListItem  Value="1">Change Date</asp:ListItem>
+                    <asp:ListItem  Value="2">Change Account Head</asp:ListItem>
+                    <asp:ListItem  Value="3">Change Narration</asp:ListItem>
+                </asp:DropDownList>--%>
+                <asp:RequiredFieldValidator ID="RFVRequestFor" ValidationGroup="valG2" runat="server"
+                    ControlToValidate="DDLRequestFor" ErrorMessage="*"></asp:RequiredFieldValidator>
+            </td>
+        </tr>
+    </table>
+
+
+/*--------------------------------------------------------------------------jquery-----------------------------------------------------------------------------*/
+
+
+<script type="text/javascript">
+       
+       $(document).ready(function(){
           $('#<%=DDLRequestFor.ClientID %>').change(function(){
             $(this).closest("tr").find("[id*=ChangeDate]").attr("disabled", false);
            });  
