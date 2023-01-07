@@ -1,0 +1,15 @@
+ $(document).ready (function () { 
+         $('#<%=Btn_Save.ClientID %>').click(function(e){
+         
+       //   alert($('#<%=lblVoucherDate.ClientID %>').val());
+       //   e.preventDefault();
+       //   return false;
+            if($('#<%=lblVoucherDate.ClientID %>').val() != $('#<%=hdnVoucherDate.ClientID %>').val()){
+            alert("Ok");
+            }
+            else{
+            alert("Please update data.");
+            }
+         }); 
+         });
+         
