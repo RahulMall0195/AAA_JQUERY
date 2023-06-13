@@ -1,0 +1,47 @@
+
+@*<script>
+    $(document).ready(function () {
+        $('#tblConsignmentList [id*=IsChecked_]').click(function () {
+        $('#tblConsignmentList [id*=IsChecked_]').each(function () { 
+          
+                $('#tblConsignmentList [id*=txtCH_CN_PKG]').prop('disabled', false);
+                $('#tblConsignmentList [id*=txtCH_CN_ACT_WT]').prop('disabled', false);
+             
+                if ($('#tblConsignmentList [id*=IsChecked_]').val() == 'true') {
+                  
+                    if ($('#tblConsignmentList [id*=txtCH_CN_PKG]').val() != "") {
+                        if ($('#tblConsignmentList [id*=hdnCH_CN_PKG]').val() == $('#tblConsignmentList [id*=txtCH_CN_PKG]').val()) {
+                            alert("No Of Pkg Should Not Same .");
+                            $('#tblConsignmentList [id*=IsChecked_]').prop('checked', false);
+                        }
+                       
+                        if ($('#tblConsignmentList [id*=txtCH_CN_PKG]').val() > $('#tblConsignmentList [id*=hdnCH_CN_PKG]').val()) {
+                            alert("No Of Pkg Should Not More Than Previous No Of Pkg .");
+                            $('#tblConsignmentList [id*=IsChecked_]').prop('checked', false);
+                        }                      
+                    } 
+                    else {
+                        alert("Please Fill Pkg Column .");
+                        $('#tblConsignmentList [id*=IsChecked_]').prop('checked', false);
+                    }
+
+                    if ($('#tblConsignmentList [id*=txtCH_CN_ACT_WT]').val() != "") {
+                        if ($('#tblConsignmentList [id*=hdnCH_CN_ACT_WT]').val() == $('#tblConsignmentList [id*=txtCH_CN_ACT_WT]').val()) {
+                            
+                        }
+                    }
+                    else {
+                        alert("Please Fill Weight Column .");
+                        $('#tblConsignmentList [id*=IsChecked_]').prop('checked', false);
+                    }
+                }
+
+                if ($('#tblConsignmentList [id*=txtCH_CN_PKG]').val() != ""  &&  $('#tblConsignmentList [id*=txtCH_CN_ACT_WT]').val() != ""  &&  $("#tblConsignmentList [id*=txtCH_CN_PKG]").val() < $("#tblConsignmentList [id*=hdnCH_CN_PKG]").val()) {
+                   
+                }
+            });
+        });
+
+         
+       });
+</script>*@
