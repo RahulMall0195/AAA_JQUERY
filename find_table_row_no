@@ -1,0 +1,166 @@
+$('#tblConsignmentList tbody').on('click', 'tr', function () {
+    
+            var rowNumber = $(this).data('row-number');
+            alert(rowNumber);          
+        });
+        
+        
+        
+        
+        
+        
+        
+        
+    ____________________________________________________________
+    
+    
+    @* ADDED BY RAHUL MALL *@
+@model BusinessLayer.Entity.Utility.Challan_CNs_Pkg_And_Weight_Change
+
+@if (Model.Challan_CN_LIST != null && Model.Challan_CN_LIST.Count() > 0)
+{
+    <div class="row" style="padding-top:5px; padding-right:16px;padding-left:16px; display:block;">
+        <div class="row" style="padding:0px;">
+            <div class="col-md-12 col-sm-12 col-xs-12 control-label bolder_12 left" style="font-size: 12px; ">
+                <span style="position:relative;color:green">Challan No.&nbsp;</span>
+                <span style="position:relative;color:green" id="spnChRefNo_Cnslist"></span>
+            </div>
+        </div>
+        <div id="no-more-tables" style="font-size: 9.0pt; min-height:400px; max-height: 400px; overflow: auto;">
+            <table id="tblConsignmentList" class="table-bordered table-striped table-condensed header-fixed" style="padding: 0px; width:100%; ">
+                <thead>
+                    <tr>
+                        <th class="text-center max-desktop" style="width:15%;">CN No</th>
+                        <th class="text-center max-desktop" style="width:15%;">CN Pkg</th>
+                        <th class="text-center max-desktop" style="width:15%;">Actual Weight</th>
+                        <th class="text-center max-desktop" style="width:15%;">Delivery Type</th>
+                        <th class="text-center max-desktop" style="width:15%;">Pkg Change</th>
+                        <th class="text-center max-desktop" style="width:15%;">Weight Change</th>
+                        <th class="text-center max-desktop" style="width:10%;">Select</th>
+                   </tr>
+                   
+                </thead>
+                <tbody id="bodyConsignmentList">
+                    @for (int i = 0; i < Model.Challan_CN_LIST.Count(); i++)
+{
+    <tr data-row-number="@i">
+        <td data-title="CN Number" style="text-align:center;">
+
+            @Html.DisplayFor(x => x.Challan_CN_LIST[i].CH_CN_NO)
+            @Html.HiddenFor(x => x.Challan_CN_LIST[i].CH_ID)
+            @Html.HiddenFor(x => x.Challan_CN_LIST[i].CH_CN_ID)
+            @Html.HiddenFor(x => x.Challan_CN_LIST[i].CHCN_ID)
+            @Html.HiddenFor(x => x.Challan_CN_LIST[i].CH_CN_DEL_TYPE_ID)
+            @Html.HiddenFor(x => x.Challan_CN_LIST[i].CH_CN_BKST)
+            @Html.HiddenFor(x => x.Challan_CN_LIST[i].CH_CN_NO)
+            @Html.HiddenFor(x => x.Challan_CN_LIST[i].CH_CN_DEL_TYPE)
+            @Html.HiddenFor(x => x.Challan_CN_LIST[i].CH_CN_PKG, new { @id = "hdnCH_CN_PKG" })
+            @Html.HiddenFor(x => x.Challan_CN_LIST[i].CH_CN_ACT_WT, new { @id = "hdnCH_CN_ACT_WT" })
+        </td>
+        <td id="Challan_CN_LIST" data-title="CN Package" style="text-align: center;">
+            @Html.DisplayFor(x => x.Challan_CN_LIST[i].CH_CN_PKG)
+        </td>
+
+        <td data-title="Acual Weight" style="text-align:center;">
+            @Html.DisplayFor(x => x.Challan_CN_LIST[i].CH_CN_ACT_WT)
+        </td>
+
+        <td data-title="Delivery Type" style="text-align:center;">
+            @Html.DisplayFor(x => x.Challan_CN_LIST[i].CH_CN_DEL_TYPE)
+        </td>
+
+        <td data-title="Delivery Type" style="text-align:center;">
+            @Html.TextBoxFor(x => x.Challan_CN_LIST[i].NEW_CH_CN_PKG, new { @class = "form-control", @style = "text-transform:upperCase;font-weight:bold;", @id = "txtCH_CN_PKG" + i, @maxlength = "12", @autocomplete = "off", @data_placeholder = "ENTER CHALLAN NO", @disabled = "disabled" })
+            <span id="spnErr_txtChallanNo" class="field-validation-error"></span>
+        </td>
+
+        <td data-title="Delivery Type" style="text-align:center;">
+            @Html.TextBoxFor(x => x.Challan_CN_LIST[i].NEW_CH_CN_ACT_WT, new { @class = "form-control", @style = "text-transform:upperCase;font-weight:bold;", @id = "txtCH_CN_ACT_WT" + i, @maxlength = "12", @autocomplete = "off", @data_placeholder = "ENTER CHALLAN NO", @disabled = "disabled" })
+            <span id="spnErr_txtChallanNo" class="field-validation-error"></span>
+        </td>
+
+        <td data-title="" class="tdCenter" style="text-align:center;">
+            @Html.CheckBoxFor(model => Model.Challan_CN_LIST[i].IsChecked, new { @id = "IsChecked_" + i, @class = "IsChecked" })
+        </td>
+    </tr>
+}
+                                       
+                </tbody>                      
+            </table>
+        </div>
+    </div>    
+}
+
+<style>
+    .chosen-container {
+        min-width: 100% !important;
+    }
+</style>
+
+
+<script>
+    $(document).ready(function () {
+
+        $('#tblConsignmentList tbody').on('click', 'tr', function () {
+    
+            var rowNumber = $(this).data('row-number');
+            alert(rowNumber);          
+        });
+
+        //$("#tblConsignmentList > tbody tr").click(function (index) {
+        //    $(this).click(function () {
+             
+        //    //});
+        //});
+
+        //$('#tblConsignmentList tbody').on('dblclick', 'tr', function () {
+        //    alert("Hi");
+        //});
+
+        //$('#tblConsignmentList [id*=IsChecked_]').each(function () {
+        //for(var i=1;i<=5;i++){
+        //$('#tblConsignmentList [id*=IsChecked_]').click(function () {           
+        //    $('#tblConsignmentList [id*=txtCH_CN_PKG]').prop('disabled', false);
+        //    $('#tblConsignmentList [id*=txtCH_CN_ACT_WT]').prop('disabled', false);             
+        //});
+          //}
+            //});
+
+        //$("#tblConsignmentList > tbody tr").each(function (index) {
+        //        //$(this).find("tr").each(function () {
+        //            $('#tblConsignmentList [id*=IsChecked_]').click(function () {
+        //                alert("OK");
+        //        //});
+        //    });
+        //});
+    });
+
+</script>
+
+
+<script>
+    $('#LoadingModal').modal('hide');
+    $('#tblConsignmentList [id*=IsChecked_]').each(function () {
+        var ind = $(this).attr('id').split("_")[1];
+        $('#Challan_CN_LIST_' + ind + '__SELECTED_DEL_TYPE_ID').chosen();
+        var CH_CN_DEL_TYPE_ID = $('#Challan_CN_LIST_' + ind + '__CH_CN_DEL_TYPE_ID').val();
+        $('#Challan_CN_LIST_' + ind + '__SELECTED_DEL_TYPE_ID').val((CH_CN_DEL_TYPE_ID == "2") ? "1" : "2").trigger("chosen:updated");
+    });
+
+    $('#spnChRefNo_Cnslist').text($("#txtChallanNo").val());
+
+    if ($('#tblConsignmentList [id*=IsChecked_]').length > 0) {
+        $('#btnSave').show();
+        $('#btnReset').show();
+    }
+    else {
+        $('#btnSave').hide();
+        $('#btnReset').hide();
+    }
+
+</script>
+
+
+
+
+        
