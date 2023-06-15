@@ -1,0 +1,835 @@
+_____________________________________________________________D:\03-06-2023\iTMS\iTMS\eARC\Views\Utility\Challan_CNs_Package_And_Weight_Change.cshtml
+
+@* ADDED BY RAHUL MALL *@
+
+@model BusinessLayer.Entity.Utility.Challan_CNs_Pkg_And_Weight_Change
+
+@{
+    ViewBag.Title = "Challan_CNs_Package_And_Weight_Change";
+    Layout = "~/Views/Shared/_MainDashboard.cshtml";
+}
+
+@Styles.Render("~/bundles/Report/CommanStyle")
+@Scripts.Render("~/bundles/Report/CommanScripts")
+
+@using (Html.BeginForm("Challan_CNs_Package_And_Weight_Change", "Utility", FormMethod.Post, new { @id = "formChallan_CNs_Package_And_Weight_Change" }))
+{
+    @Html.AntiForgeryToken()
+    @Html.ValidationSummary(true)
+    Html.RenderPartial("_Alerts");
+
+    <fieldset class="fieldSetClass">
+        <legend class="legendClass">Search Challan</legend>
+        <div class="row" style="padding-bottom:5px;">
+            <div class="col-md-1 required" style="padding-bottom: 5px;margin-left:120px;">
+                Challan Stn
+            </div>
+            <div class="col-md-3" style="padding-bottom: 5px;">
+                @Html.DropDownListFor(x => x.CH_DEST_BR_ID, Model.CH_DEST_BR_LIST, "", new { @class = "chosen-select form-control", @id = "ddlChallanBranch", @data_placeholder = "SELECT UNLOADING STN" })
+                @Html.ValidationMessageFor(model => model.CH_DEST_BR_ID)
+                <span id="spnErr_ddlChallanBranch" class="field-validation-error"></span>
+            </div>
+            <div class="col-md-1 required" style="padding-bottom: 5px;">
+                Challan No
+            </div>
+            <div class="col-md-3" style="padding-bottom:5px;">
+                @Html.TextBoxFor(x => x.CH_NO, new { @class = "form-control", @style = "text-transform:upperCase;font-weight:bold;", @id = "txtChallanNo", @maxlength = "12", @autocomplete = "off", @data_placeholder = "ENTER CHALLAN NO" })
+                <span id="spnErr_txtChallanNo" class="field-validation-error"></span>
+            </div>
+            <div class="col-md-2" style="padding-bottom:5px;text-align:center;">
+                <input type="button" class="btn btn-success btn-square" value="Search" name="Search" id="btnSearch" />
+                @Html.HiddenFor(model => model.CH_ID, new { @id = "hdnCH_ID" })           
+            </div>
+        </div>
+    </fieldset>
+    <div id="divPartial"></div>
+    <div class="row" style=" text-align:center;">
+        <div class="col-md-12" style="padding-top:15px; padding-bottom:10px;">
+            <input type="submit" class="btn btn-success btn-sm" value="Submit" name="Submit" style="width:auto;display:none;" id="btnSave" />
+            <input type="reset" class="btn btn-default btn-sm" value="Reset [Ctrl+R]" style="width: auto; display: none;" id="btnReset" />
+        </div>
+    </div>
+
+}
+
+<style>
+    .chosen-container {
+        min-width: 100% !important;
+    }
+</style>
+@Styles.Render("~/Scripts/datatable_a/JQueryDatatablecss")
+@Scripts.Render("~/bundles/JQueryDatatableScripts")
+
+<script>
+    $(document).ready(function () {
+        var validator = $("#formChallan_CNs_Package_And_Weight_Change").data('validator');
+        validator.settings.ignore = ":hidden:not(select)";
+        $('.chosen-select').chosen().change(function () {
+            $(this).trigger('click');
+        });
+        /*----- Chosen Select Dropdown Validation End----*/
+
+        function init() {
+            shortcut.add("esc", function () {
+                // Goto Home Screen
+                var url = '@Url.Action("Index", "Home")';
+                window.location.href = url;
+            });
+            shortcut.add("Ctrl+R", function () {
+                // Refresh Screen
+                var url = '@Url.Action("Challan_CNs_Package_And_Weight_Change", "Utility")';
+                window.location.href = url;
+            });
+        }
+        window.onload = init;
+
+        $("#btnReset").on("click", function () {
+            // Re-set Screen
+            var url = '@Url.Action("Challan_CNs_Package_And_Weight_Change", "Utility")';
+            window.location.href = url;
+        });
+
+
+        $("#ddlChallanBranch").change(function () {
+            var chBrId = $("#ddlChallanBranch option:selected").val() == '' ? '0' : $("#ddlChallanBranch option:selected").val();
+            $(".close").trigger('click');
+            $("#txtChallanNo").val('');         
+            $("#hdnCH_ID ").val('0');
+            if (parseInt(chBrId) > 0) {
+                $("#spnErr_ddlChallanBranch").addClass('field-validation-error').text('').show();
+            }
+            else {
+                $("#spnErr_ddlChallanBranch").addClass('field-validation-error').text('Select Unloading Stn').show();
+            }
+        });
+
+
+        $("#txtChallanNo").blur(function () {
+            var chNo = $("#txtChallanNo").val();
+            if (chNo != '') {
+                if (chNo.length == 12 || chNo.length == 8) {
+                    $("#spnErr_txtChallanNo").addClass('field-validation-error').text('').show();
+                }
+                else {
+                    $("#spnErr_txtChallanNo").addClass('field-validation-error').text('Invalid Challan No').show();
+                }
+            }
+            else {
+                $("#spnErr_txtChallanNo").addClass('field-validation-error').text('Enter Challan No').show();
+            }
+        });
+
+        $("#btnSearch").click(function (e) {           
+            $("#divPartial").empty();
+            var _brId = $("#ddlChallanBranch option:selected").val() == "" ? "0" : $("#ddlChallanBranch option:selected").val();
+            var _chNo = $("#txtChallanNo").val().trim();
+            var _chdata;
+            
+            $("#hdnCH_ID").val('0');
+            if (CheckSession(e) == 1) {                
+                if ((_chNo.length == 8 || _chNo.length == 12) && parseInt(_brId) > 0) {                   
+                    _chdata = Get_Ch_Info(_brId, _chNo);
+                  
+                    //if (!(_chdata.chErrMsg == null || _chdata.chErrMsg == '')) {                      
+                    //    $("#spnErr_txtChallanNo").addClass('field-validation-error').text(_chdata.chErrMsg).show();
+                    //}
+                    //else if (parseInt(_chdata.chBrId) > 0) {
+                    //    $("#hdnCH_ID").val(_chdata.chId);
+                    //    List(e);
+                    //}
+                    $("#hdnCH_ID").val(_chdata.chId);
+                    List(e);               
+                }
+            }
+            e.preventDefault();
+        });
+
+        function Get_Ch_Info(_brId, _chNo) {
+            var _chId = 0;
+            var _chBrId = 0;
+            var _chErrMsg = '';
+
+            if ((_chNo.length == 8 || _chNo.length == 12) && parseInt(_brId) > 0) {
+                $.ajax({
+                    url: "../Challan/GET_CH_INFO_FOR_DELIVERY_TYPE_CHANGE",
+                    type: "GET",
+                    dataType: "json",
+                    async: false,
+                    data: { brId: _brId, chNo: _chNo },
+                    success: function (data) {
+                        if (data.CH_NO != '') {
+                            _chId = data.CH_ID;
+                            _chBrId = data.CH_BR_ID;
+                            _chErrMsg = data.CH_ERR_MSG;
+                        }
+                        else {
+                            _chErrMsg = 'Challan no ' + _chNo + ' not found.';
+                        }
+                    }
+                });
+            }
+            else {
+                _chErrMsg = 'Invalid Input';
+            }
+            return { chId: _chId, chBrId: _chBrId, chErrMsg: _chErrMsg };
+        }
+
+        function List(e) {
+            $("#divPartial").empty();
+            if (CheckSession(e) == 1) {
+                $('#LoadingModalLabel').text('Please wait....').show();
+                $('#LoadingModal').modal('show');
+                var chId = $("#hdnCH_ID").val() == "" ? "0" : $("#hdnCH_ID").val();
+
+                if (CheckSession(e) == 1) {
+                    $("#divPartial").load("_Challan_CNs_Package_And_Weight_Change/Utility", { chId: chId });
+                    $("#divPartial").css("display", "block");
+                }
+                else {
+                    $("#divPartial").empty();
+                }
+            }
+            else {
+                $("#divPartial").empty();
+            }
+        }
+
+        setTimeout(function () {
+            $(".alert").slideUp();
+        }, 10000);
+
+        $("#btnSave").click(function (e) {
+            if ($('#tblConsignmentList [id*=IsChecked_]:checked').length == 0) {
+                Msg_Error('Please select atleast one from cn list.');
+                e.preventDefault();
+            }
+        });
+    });
+</script>
+
+_____________________________________________________________d:\03-06-2023\itms\itms\earc\views\utility\_challan_cns_package_and_weight_change.cshtml
+
+@* ADDED BY RAHUL MALL *@
+@model BusinessLayer.Entity.Utility.Challan_CNs_Pkg_And_Weight_Change
+
+@if (Model.Challan_CN_LIST != null && Model.Challan_CN_LIST.Count() > 0)
+{
+    <div class="row" style="padding-top:5px; padding-right:16px;padding-left:16px; display:block;">
+        <div class="row" style="padding:0px;">
+            <div class="col-md-12 col-sm-12 col-xs-12 control-label bolder_12 left" style="font-size: 12px; ">
+                <span style="position:relative;color:green">Challan No.&nbsp;</span>
+                <span style="position:relative;color:green" id="spnChRefNo_Cnslist"></span>
+            </div>
+        </div>
+        <div id="no-more-tables" style="font-size: 9.0pt; min-height:400px; max-height: 400px; overflow: auto;">
+            <table id="tblConsignmentList" class="table-bordered table-striped table-condensed header-fixed" style="padding: 0px; width:100%; ">
+                <thead>
+                    <tr>
+                        <th class="text-center max-desktop" style="width:11%;">CH CN No</th>
+                        <th class="text-center max-desktop" style="width:11%;">CN Pkg</th> 
+                        <th class="text-center max-desktop" style="width:11%;">CN Weight</th>                                            
+                        <th class="text-center max-desktop" style="width:11%;">CH CN Pkg</th>
+                        <th class="text-center max-desktop" style="width:10%;">CH CN Weight</th>
+                        <th class="text-center max-desktop" style="width:12%;">Delivery Type</th>
+                        <th class="text-center max-desktop" style="width:12%;">Pkg Change</th>
+                        <th class="text-center max-desktop" style="width:12%;">Weight Change</th>
+                        <th class="text-center max-desktop" style="width:10%;">Select</th>
+                   </tr>
+                   
+                </thead>
+                <tbody id="bodyConsignmentList">
+                    @for (int i = 0; i < Model.Challan_CN_LIST.Count(); i++)
+{
+    <tr data-row-number="@i">
+        <td data-title="CN Number" style="text-align:center;">
+
+            @Html.DisplayFor(x => x.Challan_CN_LIST[i].CH_CN_NO)
+            @Html.HiddenFor(x => x.Challan_CN_LIST[i].CH_ID)
+            @Html.HiddenFor(x => x.Challan_CN_LIST[i].CH_CN_ID)
+            @Html.HiddenFor(x => x.Challan_CN_LIST[i].CHCN_ID)
+            @Html.HiddenFor(x => x.Challan_CN_LIST[i].CH_CN_DEL_TYPE_ID)
+            @Html.HiddenFor(x => x.Challan_CN_LIST[i].CH_CN_BKST)
+            @Html.HiddenFor(x => x.Challan_CN_LIST[i].CH_CN_NO)
+            @Html.HiddenFor(x => x.Challan_CN_LIST[i].CH_CN_DEL_TYPE)
+            @Html.HiddenFor(x => x.Challan_CN_LIST[i].CH_CN_PKG, new { @id = "hdnCH_CN_PKG" + i })
+            @Html.HiddenFor(x => x.Challan_CN_LIST[i].CH_CN_ACT_WT, new { @id = "hdnCH_CN_ACT_WT" + i })
+            @Html.HiddenFor(x => x.Challan_CN_LIST[i].CN_PKG, new { @id = "hdnCN_PKG"+i })
+            @Html.HiddenFor(x => x.Challan_CN_LIST[i].CN_WT, new { @id = "hdnCN_WT"+i })
+        </td>
+
+        <td id="Challan_CN_LIST" data-title="CN Package" style="text-align: center;">
+            @Html.DisplayFor(x => x.Challan_CN_LIST[i].CN_PKG)
+        </td>
+        <td id="Challan_CN_LIST" data-title="CN Package" style="text-align: center;">
+            @Html.DisplayFor(x => x.Challan_CN_LIST[i].CN_WT)
+        </td>
+
+        <td id="Challan_CN_LIST" data-title="CN Package" style="text-align: center;">
+            @Html.DisplayFor(x => x.Challan_CN_LIST[i].CH_CN_PKG)
+        </td>
+
+        <td data-title="Acual Weight" style="text-align:center;">
+            @Html.DisplayFor(x => x.Challan_CN_LIST[i].CH_CN_ACT_WT)
+        </td>
+
+        <td data-title="Delivery Type" style="text-align:center;">
+            @Html.DisplayFor(x => x.Challan_CN_LIST[i].CH_CN_DEL_TYPE)
+        </td>
+
+        <td data-title="Delivery Type" style="text-align:center;">
+            @Html.TextBoxFor(x => x.Challan_CN_LIST[i].NEW_CH_CN_PKG, new { @class = "form-control txtCH_CN_PKG", @style = "text-transform:upperCase;font-weight:bold;", @id = "txtCH_CN_PKG" + i, @maxlength = "12", @autocomplete = "off", @data_placeholder = "ENTER CHALLAN NO", @disabled = "disabled" })
+            <span id="spnErr_txtChallanNo" class="field-validation-error"></span>
+        </td>
+
+        <td data-title="Delivery Type" style="text-align:center;">
+            @Html.TextBoxFor(x => x.Challan_CN_LIST[i].NEW_CH_CN_ACT_WT, new { @class = "form-control txtCH_CN_ACT_WT", @style = "text-transform:upperCase;font-weight:bold;", @id = "txtCH_CN_ACT_WT" + i, @maxlength = "12", @autocomplete = "off", @data_placeholder = "ENTER CHALLAN NO", @disabled = "disabled" })
+            <span id="spnErr_txtChallanNo" class="field-validation-error"></span>
+        </td>
+
+        <td data-title="" class="tdCenter" style="text-align:center;">
+            @Html.CheckBoxFor(model => Model.Challan_CN_LIST[i].IsChecked, new { @id = "IsChecked_" + i, @class = "IsChecked" })
+        </td>
+    </tr>
+}
+                                       
+  </tbody>                      
+    </table>
+      </div>
+    </div>    
+}
+
+<style>
+    .chosen-container {
+        min-width: 100% !important;
+    }
+</style>
+
+
+<script>
+    $(document).ready(function () {
+
+        $("#btnSave").prop('disabled', true);
+
+        var showAlert = true;
+        $('#tblConsignmentList tbody').on('click', 'tr', function () {
+            var i = $(this).data('row-number');
+                        
+                var CN_PKG_MAX = $("#hdnCN_PKG" + i).val();
+                var CN_WT_MAX = $("#hdnCN_WT" + i).val();
+                var txtCH_CN_PKG = $("#txtCH_CN_PKG" + i).val();
+                var txtCH_CN_ACT_WT = $("#txtCH_CN_ACT_WT" + i).val();
+                var hdnCH_CN_PKG = $("#hdnCH_CN_PKG" + i).val();
+                var hdnCH_CN_ACT_WT = $("#hdnCH_CN_ACT_WT" + i).val();
+                
+                if ($('#tblConsignmentList [id*=IsChecked_' + i + ']:checked').length > 0) {
+                    $("#txtCH_CN_PKG" + i).prop('disabled', false);
+                    $("#txtCH_CN_ACT_WT" + i).prop('disabled', false);
+
+                    var $input = $('#txtCH_CN_PKG' + i);
+                    var $input2 = $('#txtCH_CN_ACT_WT' + i);
+                               
+
+                    $input.on('input change', function () {
+                        var valueCN_PKG = parseFloat($("#txtCH_CN_PKG" + i).val());
+                        var hdnCN_PKG = parseFloat($("#hdnCN_PKG" + i).val());                 
+
+                        if (valueCN_PKG > hdnCN_PKG) {
+                            if (showAlert) {
+                                showAlert = false;
+                                Msg_Error('Pkg should not more than CN Pkg.');
+                                $("#txtCH_CN_PKG" + i).val(hdnCH_CN_PKG);
+                            }
+                            e.preventDefault();
+                        }
+                        if (valueCN_PKG > 0) {
+                            $("#btnSave").prop('disabled', false);
+                        } else {
+                            $("#btnSave").prop('disabled', true);
+                        }
+                    });
+
+                    $input2.on('input change', function () {
+                        var hdnCN_WT = parseFloat($("#hdnCN_WT" + i).val());
+                        var valCH_CN_ACT_WT = parseFloat($("#txtCH_CN_ACT_WT" + i).val());
+                        if (valCH_CN_ACT_WT > hdnCN_WT) {
+                            if (showAlert) {
+                                showAlert = false;
+                                Msg_Error('Weigth should not more than CN Weight.');
+                                $("#txtCH_CN_ACT_WT" + i).val(hdnCH_CN_ACT_WT);
+                            }
+                            e.preventDefault();
+                        }
+                        $("#btnSave").prop('disabled', false);
+                    });                 
+                }
+                else {
+                    $("#txtCH_CN_PKG" + i).prop('disabled', true);
+                    $("#txtCH_CN_ACT_WT" + i).prop('disabled', true);
+                    $("#txtCH_CN_PKG" + i).val('');
+                    $("#txtCH_CN_ACT_WT" + i).val('');
+                }
+                showAlert = true;
+
+        });      
+    });
+
+</script>
+
+
+<script>
+    $('#LoadingModal').modal('hide');
+    $('#tblConsignmentList [id*=IsChecked_]').each(function () {
+        var ind = $(this).attr('id').split("_")[1];
+        $('#Challan_CN_LIST_' + ind + '__SELECTED_DEL_TYPE_ID').chosen();
+        var CH_CN_DEL_TYPE_ID = $('#Challan_CN_LIST_' + ind + '__CH_CN_DEL_TYPE_ID').val();
+        $('#Challan_CN_LIST_' + ind + '__SELECTED_DEL_TYPE_ID').val((CH_CN_DEL_TYPE_ID == "2") ? "1" : "2").trigger("chosen:updated");
+    });
+
+    $('#spnChRefNo_Cnslist').text($("#txtChallanNo").val());
+
+    if ($('#tblConsignmentList [id*=IsChecked_]').length > 0) {
+        $('#btnSave').show();
+        $('#btnReset').show();
+    }
+    else {
+        $('#btnSave').hide();
+        $('#btnReset').hide();
+    }
+
+</script>
+
+
+
+
+_____________________________________________________________d:\03-06-2023\itms\itms\earc\controllers\utilitycontroller.cs
+
+using BusinessLayer;
+using BusinessLayer.DAL;
+using BusinessLayer.Entity;
+using BusinessLayer.Entity.Utility;
+using NLog;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+using System.Web.Mvc;
+
+namespace eARC.Controllers
+{
+    public class UtilityController : BaseController
+    {
+        Logger logger = LogManager.GetCurrentClassLogger();
+        public UtilityController() { }
+
+        #region Json
+        [AcceptVerbs(HttpVerbs.Get)]
+        public JsonResult SELECT_BANK_CODE_LIST(int BR_ID)
+        {
+            List<ddlClass> L = null;
+            return Json(L, JsonRequestBehavior.AllowGet);
+        }
+        #endregion
+
+        #region CN Stock Update
+
+        [Authorize]
+        public ActionResult CN_Stock_Update()
+        {
+            ViewBag.Header = "CN Stock Update";
+            CN_Stock_Change cn = new CN_Stock_Change();
+            try
+            {
+                List<MST_BRANCH> bookingList = new DAL_Branch().GET_BRANCH_LIST();
+                cn.SEARCH_BR_LIST = new SelectList(bookingList, "BR_ID", "BR_NAME", (bookingList.Count() == 1) ? bookingList.First().BR_ID : emp.USER_LOC_ID);
+            }
+            catch (Exception ex)
+            {
+                logger.Error(ex, "Error : CN Bill Party Change ", ex.Message);
+                Danger(string.Format("<b>Exception occured.</b>"), true);
+            }
+            return View(cn);
+        }
+
+        [AcceptVerbs(HttpVerbs.Get)]
+        public JsonResult GET_CN_INFO_FOR_CN_STOCK_UPDATE(string CN_NO)
+        {
+            TBL_CN_INFO cn = new DAL_Utility().GET_CN_INFO_FOR_CN_STOCK_UPDATE(CN_NO, emp.SUPER_ROLE, emp.USER_LOC_ID ?? 0, emp.USER_ID);
+            return Json(cn, JsonRequestBehavior.AllowGet);
+        }
+
+        public ActionResult _CN_Stock_Update(int brId, string cnNo)
+        {
+            CN_Stock_Change cn = new CN_Stock_Change();
+
+            cn.TBL_CN_HDR = new TBL_CN_HDR();
+            cn.TBL_CN_HDR = new DAL_Utility().GET_CN_DTLS_FOR_STOCK_UPDATE(brId, cnNo);
+            cn.TBL_CN_HDR.PKG_TYPE_LIST = new SelectList(new DAL_ddList().GetDropdownList_Dtl("PKG_TYPE"), "ddlValue", "ddlText");
+
+            return PartialView("_CN_Stock_Update", cn);
+        }
+
+        [Authorize]
+        [ValidateAntiForgeryToken]
+        [HttpPost]
+        public ActionResult CN_Stock_Update(CN_Stock_Change cn)
+        {
+            ViewBag.Header = "CN Stock Update";
+            ModelState.Clear();
+
+            var errors = ModelState.Where(x => x.Value.Errors.Count > 0).Select(x => new { x.Key, x.Value.Errors }).ToArray();
+            
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    cn.CN_ADD_BY = emp.USER_ID;
+                    cn.CN_USER_TYPE = emp.UserTypeShort;
+                    cn.CN_ADD_BY_NAME = emp.USER_NAME;
+
+                    string result = "";
+
+                    result = new DAL_Utility().UPDATE_CN_STOCK(cn);
+
+                    if (result == "")
+                    {
+                        if (cn.CN_EDIT_ID == "1")
+                        {
+                            Success(string.Format("<b>CN Package has been updated successfully.</b>"), true);
+                        }
+                        else
+                        {
+                            Success(string.Format("<b>CN Weight has been updated successfully.</b>"), true);
+                        }
+                        return RedirectToAction("CN_Stock_Update", "Utility");
+                    }
+                    else
+                    {
+                        Danger(string.Format("<b>" + result + "</b>"), true);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    logger.Error(ex, "Error : CN Stock Update ", ex.Message);
+                    Danger(string.Format("<b>Exception occured.</b>"), true);
+                }
+            }
+            else
+            {
+                Danger(string.Format("<b> " + string.Join("; ", ModelState.Values.SelectMany(z => z.Errors).Select(z => z.ErrorMessage))) + " </b>", true);
+            }
+            List<MST_BRANCH> bookingList = new DAL_Branch().GET_BRANCH_LIST();
+            cn.SEARCH_BR_LIST = new SelectList(bookingList, "BR_ID", "BR_NAME", (bookingList.Count() == 1) ? bookingList.First().BR_ID : emp.USER_LOC_ID);
+
+            return View(cn);
+        }
+        #endregion
+
+        #region CN Manual Stock Add/Remove
+
+        [Authorize]
+        public ActionResult CN_Manual_Stock()
+        {
+            ViewBag.Header = "CN Manual Stock";
+            CN_Manual_Stocks cn = new CN_Manual_Stocks();
+            try
+            {
+                List<MST_BRANCH> bookingList = new DAL_Branch().GET_BRANCH_LIST();
+                cn.SEARCH_BR_LIST = new SelectList(bookingList, "BR_ID", "BR_NAME", (bookingList.Count() == 1) ? bookingList.First().BR_ID : emp.USER_LOC_ID);
+            }
+            catch (Exception ex)
+            {
+                logger.Error(ex, "Error : CN Manual Stock Add/Remove", ex.Message);
+                Danger(string.Format("<b>Exception occured.</b>"), true);
+            }
+            return View(cn);
+        }
+
+        [AcceptVerbs(HttpVerbs.Get)]
+        public JsonResult GET_CN_INFO_FOR_CN_STOCK_MANUAL(string CN_NO)
+        {
+            TBL_CN_INFO cn = new DAL_Utility().GET_CN_INFO_FOR_CN_STOCK_MANUAL(CN_NO, emp.SUPER_ROLE, emp.USER_LOC_ID ?? 0, emp.USER_ID);
+            return Json(cn, JsonRequestBehavior.AllowGet);
+        }
+
+        public ActionResult _CN_Manual_Stock(int brId, string cnNo)
+        {
+            CN_Manual_Stocks cn = new CN_Manual_Stocks();
+            cn = new DAL_Utility().GET_CN_DTLS_FOR_CN_STOCK_MANUAL(brId, cnNo);
+             
+            List<MST_BRANCH> Branch_list = new DAL_Branch().GET_BRANCH_LIST_BY_SCOPE(Convert.ToString(emp.UserTypeShort), Convert.ToDecimal(emp.USER_ID), Convert.ToString(emp.USER_BR_SCOPE), Convert.ToString(emp.USER_BR_TYPE), Convert.ToInt32(emp.USER_LOC_ID));
+            cn.STK_BR_LIST = new SelectList(Branch_list, "BR_ID", "BR_NAME");
+
+            return PartialView("_CN_Manual_Stock", cn);
+        }
+
+        [Authorize]
+        [ValidateAntiForgeryToken]
+        [HttpPost]
+        public ActionResult CN_Manual_Stock(CN_Manual_Stocks cn)
+        {
+            ViewBag.Header = "CN Manual Stock";
+            ModelState.Clear();
+
+            var errors = ModelState.Where(x => x.Value.Errors.Count > 0).Select(x => new { x.Key, x.Value.Errors }).ToArray();
+
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    cn.CN_ADD_BY = emp.USER_ID;
+                    cn.CN_USER_TYPE = emp.UserTypeShort;
+                    cn.CN_ADD_BY_NAME = emp.USER_NAME;
+
+                    string result = "";
+
+                    result = new DAL_Utility().INSERT_CN_MANUAL_STOCKS(cn);
+
+                    if (result == "")
+                    {
+                        if (cn.CN_ADD_REM_ID == "1")
+                        {
+                            Success(string.Format("<b>CN Manual Stock has been added successfully.</b>"), true);
+                        }
+                        else
+                        {
+                            Success(string.Format("<b>CN Manual Stock has been removed successfully.</b>"), true);
+                        }
+                        return RedirectToAction("CN_Manual_Stock", "Utility");
+                    }
+                    else
+                    {
+                        Danger(string.Format("<b>" + result + "</b>"), true);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    logger.Error(ex, "Error : CN Manual Stock Add/Remove", ex.Message);
+                    Danger(string.Format("<b>Exception occured.</b>"), true);
+                }
+            }
+            else
+            {
+                Danger(string.Format("<b> " + string.Join("; ", ModelState.Values.SelectMany(z => z.Errors).Select(z => z.ErrorMessage))) + " </b>", true);
+            }
+            List<MST_BRANCH> bookingList = new DAL_Branch().GET_BRANCH_LIST();
+            cn.SEARCH_BR_LIST = new SelectList(bookingList, "BR_ID", "BR_NAME", (bookingList.Count() == 1) ? bookingList.First().BR_ID : emp.USER_LOC_ID);
+
+            return View(cn);
+        }
+
+        [AcceptVerbs(HttpVerbs.Get)]
+        public JsonResult SELECT_CN_STOCK_BALANCE(int stkBrId, long cnId)
+        {
+            object stk = new DAL_Utility().SELECT_CN_STOCK_BALANCE(stkBrId, cnId);
+            return Json(stk, JsonRequestBehavior.AllowGet);
+        }
+        #endregion
+
+        #region Challan_Lorry_Vehicle_Update
+        public ActionResult Challan_Lorry_Vehicle_Update()
+        {
+            ViewBag.Header = "Challan Lorry Vehicle Update";
+
+            Challan_Lorry_Vehicle_Update _objChallan_Updation = new Challan_Lorry_Vehicle_Update();
+
+            List<MST_BRANCH> Branch_list = new DAL_Branch().GET_BRANCH_LIST_FOR_CN_BOOKING(emp.UserTypeShort, emp.USER_ID, emp.USER_BR_SCOPE, emp.USER_BR_TYPE, emp.USER_LOC_ID ?? 0);
+            _objChallan_Updation.Branch_list = new SelectList(Branch_list, "BR_ID", "BR_NAME", (Branch_list.Count() == 1) ? Branch_list.First().BR_ID : (Branch_list.Count() > 1) ? emp.USER_LOC_ID : 0);
+
+            return View(_objChallan_Updation);
+        }
+
+        public ActionResult _Challan_Lorry_Vehicle_Update(int BR_ID, string CH_NO)
+        {
+            Challan_Lorry_Vehicle_Update _objLorry_Vehicle_Update = new Challan_Lorry_Vehicle_Update();
+
+            try
+            {
+                _objLorry_Vehicle_Update = new DAL_Utility().SELECT_Challan_Lorry_Vehicle_Update(BR_ID, CH_NO);
+            }
+            catch (Exception ex)
+            {
+                Danger(string.Format("<b>Exception occured.</b>"), true);
+            }
+            return View("_Challan_Lorry_Vehicle_Update", _objLorry_Vehicle_Update);
+        }
+
+
+        [HttpPost]
+        public ActionResult Challan_Lorry_Vehicle_Update(Challan_Lorry_Vehicle_Update cn)
+        {
+            ViewBag.Header = "Challan Lorry Vehicle Update";
+
+            string result = "";
+            try
+            {
+                if (cn.VEHICLE_NO != null && cn.OWNER_TYPE > 0 && cn.OWNER_PAN != "")
+                {
+                    result = new DAL_Utility().Challan_Lorry_Vehicle_For_Update(cn);
+
+                    if (result == "")
+                    {
+                        Success(string.Format("<b>Challan Detail Updated Successfully.</b>"), true);
+                        cn.CH_NO = "";
+                    }
+                }
+                else
+                {
+                    Danger(string.Format("<b>Select Owner Type and Enter Vehicle No.</b>"), true);
+                }
+            }
+            catch (Exception ex)
+            {
+                Danger(string.Format("<b>Exception occured.</b>"), true);
+            }
+
+            List<MST_BRANCH> Branch_list = new DAL_Branch().GET_BRANCH_LIST_FOR_CN_BOOKING(emp.UserTypeShort, emp.USER_ID, emp.USER_BR_SCOPE, emp.USER_BR_TYPE, emp.USER_LOC_ID ?? 0);
+            cn.Branch_list = new SelectList(Branch_list, "BR_ID", "BR_NAME", (Branch_list.Count() == 1) ? Branch_list.First().BR_ID : (Branch_list.Count() > 1) ? emp.USER_LOC_ID : 0);
+
+            return View(cn);
+        }
+
+        #endregion
+
+
+        //_______________________________________________________________rahul 07-06-2023
+
+        #region Challan CNs Pkg And Weight Change
+
+        public ActionResult Challan_CNs_Package_And_Weight_Change()
+        {
+            ViewBag.Header = "Challan CNs Package And Weight Change";
+            Challan_CNs_Pkg_And_Weight_Change cdt = new Challan_CNs_Pkg_And_Weight_Change();
+            List<MST_BRANCH> bookingList = new DAL_Branch().GET_ALL_BRANCH_LIST(); // ALL BRANCH BINDING
+            cdt.CH_DEST_BR_LIST = new SelectList(bookingList, "BR_ID", "BR_NAME", (bookingList.Count() == 1) ? bookingList.First().BR_ID : emp.USER_LOC_ID);
+            return View(cdt);
+        }
+
+
+        public ActionResult _Challan_CNs_Package_And_Weight_Change(decimal chId)
+        {
+            Challan_CNs_Pkg_And_Weight_Change cdt = new Challan_CNs_Pkg_And_Weight_Change();
+            try
+            {
+                cdt.Challan_CN_LIST = new DAL_Utility().GET_CH_INFO_FOR_Pkg_And_Weight_CHANGE(chId);
+            }
+            catch (Exception ex)
+            {
+                Danger(string.Format("<b>Exception occured.</b>"), true);
+            }
+            return PartialView("_Challan_CNs_Package_And_Weight_Change", cdt);
+        }
+
+
+        [Authorize]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult Challan_CNs_Package_And_Weight_Change(Challan_CNs_Pkg_And_Weight_Change cdt)
+        {
+            ViewBag.Header = "Challan CNs Pkg And Weight Change";
+
+            cdt.CH_ADDED_BY = emp.USER_ID;
+            cdt.CH_USER_TYPE = emp.UserTypeShort;
+            cdt.CH_UPDATE_BY_NAME = emp.USER_NAME;
+
+            var errors = ModelState.Where(x => x.Value.Errors.Count > 0).Select(x => new { x.Key, x.Value.Errors }).ToArray();
+            if (ModelState.IsValid)
+            {
+                try
+                {                 
+                    string result = "";
+                    result = new DAL_Utility().UPDATE_CH_INFO_FOR_Pkg_And_Weight_CHANGE(cdt);
+                    if (result == "")
+                    {
+                        Success(string.Format("<b>Challan CN Delivery Type is changed successfully.</b>"), true);
+                        return RedirectToAction("Challan_CNs_Package_And_Weight_Change", "Utility");
+                    }
+                    else
+                    {
+                        Danger(string.Format("<b>Error : </b>" + result), true);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Danger(string.Format("<b>Error : </b>" + ex.Message), true);
+                }
+            }
+            else
+            {
+                Danger(string.Format("<b>Error  : </b>" + string.Join("; ", ModelState.Values.SelectMany(z => z.Errors).Select(z => z.ErrorMessage))), true);
+            }
+
+            List<MST_BRANCH> bookingList = new DAL_Branch().GET_ALL_BRANCH_LIST();
+            cdt.CH_DEST_BR_LIST = new SelectList(bookingList, "BR_ID", "BR_NAME", (bookingList.Count() == 1) ? bookingList.First().BR_ID : emp.USER_LOC_ID);
+            return View(cdt);
+        }
+
+        #endregion
+
+    }
+}
+
+_____________________________________________________________D:\03-06-2023\iTMS\iTMS\BusinessLayer\Entity\Utility\Challan_CNs_Pkg_And_Weight_Change.cs
+
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Web.Mvc;
+
+
+namespace BusinessLayer.Entity.Utility
+{
+    public class Challan_CNs_Pkg_And_Weight_Change
+    {
+        [Required(ErrorMessage = "Select Branch")]
+        public Nullable<int> CH_DEST_BR_ID { get; set; }
+        public SelectList CH_DEST_BR_LIST { get; set; }
+        [Required(ErrorMessage = "Enter Challan No")]
+        public string CH_NO { get; set; }
+        public Nullable<decimal> CH_ID { get; set; }
+        public string CH_USER_TYPE { get; set; }
+        public decimal? CH_ADDED_BY { get; set; }
+
+        public string CH_UPDATE_BY_NAME { get; set; }   
+        public SelectList DEL_TYPE_LIST { get; set; }
+        public List<Challan_List> Challan_CN_LIST { get; set; }
+
+        public Challan_CNs_Pkg_And_Weight_Change()
+        {
+            DEL_TYPE_LIST = new SelectList(new List<SelectListItem>
+                                    { 
+                                        new SelectListItem { Text = "ARC Godown", Value = "1" , Selected = true },
+                                        new SelectListItem { Text = "Door Delivery", Value = "2", Selected = false } 
+                                    }, "Value", "Text");
+        }
+
+    }
+
+    public class Challan_List
+    {
+        public Nullable<decimal> CH_ID { get; set; }
+        public Nullable<decimal> CHCN_ID { get; set; }
+        public Nullable<decimal> CH_CN_ID { get; set; }
+        public Nullable<int> CH_CN_DEL_TYPE_ID { get; set; }
+        public Nullable<decimal> CH_CN_PKG { get; set; }
+        public Nullable<decimal> CH_CN_ACT_WT { get; set; }
+        public Nullable<decimal> NEW_CH_CN_PKG { get; set; }
+        public Nullable<decimal> NEW_CH_CN_ACT_WT { get; set; }
+        public Nullable<decimal> CN_PKG { get; set; }
+        public Nullable<decimal> CN_WT { get; set; }
+        public string CH_CN_NO { get; set; }
+        public string CH_CN_DEL_TYPE { get; set; }
+        public Nullable<int> SELECTED_DEL_TYPE_ID { get; set; }
+        public string CH_CN_BKST { get; set; }
+
+        public bool IsChecked { get; set; }
+    }
+    
+}
+
+_____________________________________________________________
+_____________________________________________________________
+_____________________________________________________________
+_____________________________________________________________
