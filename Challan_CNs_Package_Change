@@ -829,7 +829,569 @@ namespace BusinessLayer.Entity.Utility
     
 }
 
-_____________________________________________________________
+_____________________________________________________________D:\03-06-2023\iTMS\iTMS\BusinessLayer\DAL\DAL_Utility.cs
+
+using BusinessLayer.Entity;
+using BusinessLayer.Entity.Utility;
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Data.SqlClient;
+using System.Globalization;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace BusinessLayer.DAL
+{
+    public class DAL_Utility
+    {
+        #region CN Stock Update
+
+        public TBL_CN_INFO GET_CN_INFO_FOR_CN_STOCK_UPDATE(string cnNo, int SUPER_ROLE, int USER_LOC_ID, decimal? empId = null)
+        {
+            TBL_CN_INFO cn = new TBL_CN_INFO();
+            try
+            {
+                SqlParameter[] param = { new SqlParameter("@CN_NO", cnNo), new SqlParameter("@EMP_ID", empId), new SqlParameter("@SUPER_ROLE", SUPER_ROLE), new SqlParameter("@USER_LOC_ID", USER_LOC_ID) };
+                DataSet ds = new DataAccess(sqlConnection.GetConnectionString()).GetDataSet("[iTMS].[USP_GET_CN_INFO_FOR_CN_STOCK_UPDATE]", CommandType.StoredProcedure, param);
+                if (ds != null && ds.Tables.Count > 0)
+                {
+                    if (ds.Tables[0].Rows.Count > 0)
+                    {
+                        cn.CN_ID = Convert.ToDecimal(ds.Tables[0].Rows[0]["CN_ID"] == DBNull.Value ? "0" : ds.Tables[0].Rows[0]["CN_ID"]);
+                        cn.CN_NO = Convert.ToString(ds.Tables[0].Rows[0]["CN_NO"] == DBNull.Value ? "" : ds.Tables[0].Rows[0]["CN_NO"]);
+                        cn.CN_DATE = Convert.ToString(ds.Tables[0].Rows[0]["CN_DATE"] == DBNull.Value ? "" : ds.Tables[0].Rows[0]["CN_DATE"]);
+                        cn.CN_EXCEPT_ID = Convert.ToInt32(ds.Tables[0].Rows[0]["CN_EXCEPT_ID"] == DBNull.Value ? "0" : ds.Tables[0].Rows[0]["CN_EXCEPT_ID"]);
+                        cn.CN_EXCEPT_NAME = Convert.ToString(ds.Tables[0].Rows[0]["CN_EXCEPT_NAME"] == DBNull.Value ? "" : ds.Tables[0].Rows[0]["CN_EXCEPT_NAME"]);
+                        cn.CN_STATUS = Convert.ToBoolean(ds.Tables[0].Rows[0]["CN_STATUS"] == DBNull.Value ? "0" : ds.Tables[0].Rows[0]["CN_STATUS"]);
+                        cn.CN_BOOKING_BR_ID = Convert.ToInt32(ds.Tables[0].Rows[0]["CN_BOOKING_BR_ID"] == DBNull.Value ? "0" : ds.Tables[0].Rows[0]["CN_BOOKING_BR_ID"]);
+                        cn.CN_BOOKING_BR_NAME = Convert.ToString(ds.Tables[0].Rows[0]["CN_BOOKING_BR_NAME"] == DBNull.Value ? "" : ds.Tables[0].Rows[0]["CN_BOOKING_BR_NAME"]);
+                        cn.CN_APPROVED = Convert.ToInt32(ds.Tables[0].Rows[0]["CN_APPROVED"] == DBNull.Value ? "0" : ds.Tables[0].Rows[0]["CN_APPROVED"]);
+                        cn.CN_BILL_ID = Convert.ToInt32(ds.Tables[0].Rows[0]["BILL_ID"] == DBNull.Value ? "0" : ds.Tables[0].Rows[0]["BILL_ID"]);
+                        cn.CN_MR_ID = Convert.ToInt32(ds.Tables[0].Rows[0]["MR_ID"] == DBNull.Value ? "0" : ds.Tables[0].Rows[0]["MR_ID"]);
+                        cn.CN_BTYPE_ID = Convert.ToInt32(ds.Tables[0].Rows[0]["CN_BTYPE_ID"] == DBNull.Value ? "0" : ds.Tables[0].Rows[0]["CN_BTYPE_ID"]);
+                        cn.HIS_ID = Convert.ToDecimal(ds.Tables[0].Rows[0]["HIS_ID"] == DBNull.Value ? "0" : ds.Tables[0].Rows[0]["HIS_ID"]);
+                    }
+                }
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+            return cn;
+        }
+
+        public TBL_CN_HDR GET_CN_DTLS_FOR_STOCK_UPDATE(int bookBrId, string cnNo)
+        {
+            SqlParameter[] param = { new SqlParameter("@CN_BOOKING_BR_ID", bookBrId), new SqlParameter("@CN_NO", cnNo) };
+            using (DataSet ds = new DataAccess(sqlConnection.GetConnectionString()).GetDataSet("[iTMS].[USP_GET_CN_DTLS_FOR_STOCK_UPDATE]", CommandType.StoredProcedure, param))
+            {
+                TBL_CN_HDR cnHdr = new TBL_CN_HDR();
+                if (ds != null && ds.Tables[0].Rows.Count > 0)
+                {
+                    if (Convert.ToString(ds.Tables[0].Rows[0]["CN_ID"]) != string.Empty)
+                    {
+                        DataRow row = ds.Tables[0].Rows[0];
+                        cnHdr.CN_ID = Convert.ToDecimal(row["CN_ID"]);
+
+                        cnHdr.CN_NO = Convert.ToString(ds.Tables[0].Rows[0]["CN_NO"] == DBNull.Value ? "" : ds.Tables[0].Rows[0]["CN_NO"]);
+                        cnHdr.CN_DATE = Convert.ToDateTime(ds.Tables[0].Rows[0]["CN_DATE"] == DBNull.Value ? "" : ds.Tables[0].Rows[0]["CN_DATE"]);
+                        cnHdr.CN_DATE1 = cnHdr.CN_DATE.Value.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture);
+
+                        cnHdr.CN_BOOKING_BR_NAME = Convert.ToString(row["B_BR_CODE"] == DBNull.Value ? "" : (row["B_BR_CODE"] + " - " + row["B_BR_NAME"]));
+                        cnHdr.CN_BOOKING_BR_CODE = Convert.ToString(row["B_BR_CODE"] == DBNull.Value ? "" : row["B_BR_CODE"]);
+
+                        cnHdr.CN_DESTINATION_BR_NAME = Convert.ToString(row["D_BR_NAME"] == DBNull.Value ? "" : (row["D_BR_CODE"] + " - " + row["D_BR_NAME"]));
+                        cnHdr.CN_DESTINATION_BR_CODE = Convert.ToString(row["D_BR_CODE"] == DBNull.Value ? "" : row["D_BR_CODE"]);
+                        cnHdr.CN_DESTINATION_BR_ID = Convert.ToInt32(row["CN_DESTINATION_BR_ID"]);
+
+                        cnHdr.CN_LOOSE_PKG = Convert.ToBoolean(row["CN_LOOSE_PKG"] == DBNull.Value ? "0" : row["CN_LOOSE_PKG"]);
+                        cnHdr.CN_NO_PKG = Convert.ToInt32(row["CN_NO_PKG"] == DBNull.Value ? "0" : row["CN_NO_PKG"]);
+
+                        cnHdr.CN_ACTUAL_WEIGHT = Convert.ToDecimal(row["CN_ACTUAL_WEIGHT"] == DBNull.Value ? "0" : row["CN_ACTUAL_WEIGHT"]);
+                        cnHdr.CN_CHARGE_WEIGHT = Convert.ToDecimal(row["CN_CHARGE_WEIGHT"] == DBNull.Value ? "0" : row["CN_CHARGE_WEIGHT"]);
+
+                    }
+
+                    List<TBL_CN_PACKING_DTLS> packList = new List<TBL_CN_PACKING_DTLS>();
+
+                    if (ds != null && ds.Tables[1].Rows.Count > 0)
+                    {
+                        foreach (DataRow row in ds.Tables[1].Rows)
+                        {
+                            packList.Add(new TBL_CN_PACKING_DTLS { CN_PKG_METHOD_ID = Convert.ToInt32(row["CN_PKG_METHOD_ID"]), CN_PKG_METHOD_NAME = Convert.ToString(row["PKG_DESC"]), CB_PKG_QTY = Convert.ToInt32(row["CB_PKG_QTY"]) });
+                        }
+                    }
+
+                    cnHdr.PACKING_DTLS_LIST = packList;
+                }
+
+                return cnHdr;
+            }
+        }
+
+        public string UPDATE_CN_STOCK(CN_Stock_Change cn)
+        {
+            string errorMsg = "";
+            using (var connection = new SqlConnection(sqlConnection.GetConnectionString()))
+            {
+                connection.Open();
+                SqlCommand command;
+                SqlTransaction transactionScope = null;
+                transactionScope = connection.BeginTransaction(IsolationLevel.ReadCommitted);
+                try
+                {
+                    SqlParameter[] param = {  
+                                              new SqlParameter("@ERRORSTR", SqlDbType.VarChar, 200) 
+                                             ,new SqlParameter("@CN_ID", cn.TBL_CN_HDR.CN_ID)                                            
+                                             ,new SqlParameter("@CN_EDIT_ID",(cn.CN_EDIT_ID==null)?(object)DBNull.Value:cn.CN_EDIT_ID)
+                                             ,new SqlParameter("@CN_ACTUAL_WEIGHT", (cn.TBL_CN_HDR.CN_ACTUAL_WEIGHT==null)?(object)DBNull.Value:cn.TBL_CN_HDR.CN_ACTUAL_WEIGHT)
+                                             ,new SqlParameter("@CN_CHARGE_WEIGHT", (cn.TBL_CN_HDR.CN_CHARGE_WEIGHT==null)?(object)DBNull.Value:cn.TBL_CN_HDR.CN_CHARGE_WEIGHT)
+                                             ,new SqlParameter("@CN_NO_PKG", (cn.TBL_CN_HDR.CN_NO_PKG ==null)?(object)DBNull.Value:cn.TBL_CN_HDR.CN_NO_PKG)
+                                             ,new SqlParameter("@ADDBY", (cn.CN_ADD_BY ==null)?(object)DBNull.Value:cn.CN_ADD_BY)
+                                           };
+
+                    param[0].Direction = ParameterDirection.Output;
+
+                    new DataAccess().InsertWithTransaction("[iTMS].[USP_UPDATE_CN_STOCK]", CommandType.StoredProcedure, out command, connection, transactionScope, param);
+                    string error_1 = (string)command.Parameters["@ERRORSTR"].Value;
+                    if (error_1 != "")
+                    {
+                        errorMsg = error_1;
+                    }
+
+                    if (cn.TBL_CN_HDR.PACKING_DTLS_LIST != null && cn.CN_EDIT_ID=="1")
+                    {
+                        decimal CN_PKG_ID = 0;
+                        SqlParameter[] parampkg = new SqlParameter[5];
+                        foreach (TBL_CN_PACKING_DTLS pkg in cn.TBL_CN_HDR.PACKING_DTLS_LIST)
+                        {
+                            if ((pkg.CN_PKG_METHOD_ID ?? 0) > 0)
+                            {
+                                parampkg[0] = new SqlParameter("@CN_PKG_ID", SqlDbType.Decimal);
+                                parampkg[0].Direction = ParameterDirection.Output;
+                                parampkg[1] = new SqlParameter("@ERRORSTR", SqlDbType.VarChar, 200);
+                                parampkg[1].Direction = ParameterDirection.Output;
+                                parampkg[2] = new SqlParameter("@CN_ID", cn.TBL_CN_HDR.CN_ID);
+                                parampkg[3] = new SqlParameter("@CN_PKG_METHOD_ID", pkg.CN_PKG_METHOD_ID);
+                                parampkg[4] = new SqlParameter("@CB_PKG_QTY", (pkg.CB_PKG_QTY == null) ? (object)DBNull.Value : pkg.CB_PKG_QTY);
+
+                                new DataAccess().InsertWithTransaction("[iTMS].[USP_UPDATE_CN_PKG]", CommandType.StoredProcedure, out command, connection, transactionScope, parampkg);
+                                CN_PKG_ID = (decimal)command.Parameters["@CN_PKG_ID"].Value;
+                                string error_Freight = (string)command.Parameters["@ERRORSTR"].Value;
+                                if (CN_PKG_ID == -1) { errorMsg = error_Freight; break; }
+                            }
+                        }
+                    }
+
+                    //Start CN History Entry
+                    if (errorMsg == "")
+                    {
+                        string hisRemarks = "";
+                        int processId = 0;
+                        string processName = "";
+
+                        hisRemarks = "CN No : " + cn.TBL_CN_HDR.CN_NO + " - CN Stock updated on " + DateTime.Now.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture) + " by " + cn.CN_ADD_BY_NAME;
+                        processId = 0;
+                        processName = "CN Stock Update Using Utility";
+
+                        string error_2 =new DAL_Consignment().INSERT_CN_HISTORY(cn.TBL_CN_HDR.CN_ID, cn.TBL_CN_HDR.CN_NO, hisRemarks, processId, processName, cn.CN_USER_TYPE, cn.CN_ADD_BY, out command, connection, transactionScope);
+
+                        if (error_2 != "")
+                        {
+                            errorMsg = error_2;
+                        }
+                    }
+                    //End CN History Entry
+
+                    if (errorMsg == "")
+                    {
+                        transactionScope.Commit();
+                    }
+                    else
+                    {
+                        transactionScope.Rollback();
+                    }
+                }
+                catch (Exception)
+                {
+                    errorMsg = "Error: Exception occured.";
+                    transactionScope.Rollback();
+                }
+                finally
+                {
+                    connection.Close();
+                }
+            }
+            return errorMsg;
+        }
+
+        #endregion
+
+        #region CN Manual Stock Add/Remove
+        public TBL_CN_INFO GET_CN_INFO_FOR_CN_STOCK_MANUAL(string cnNo, int SUPER_ROLE, int USER_LOC_ID, decimal? empId = null)
+        {
+            TBL_CN_INFO cn = new TBL_CN_INFO();
+            try
+            {
+                SqlParameter[] param = { new SqlParameter("@CN_NO", cnNo), new SqlParameter("@EMP_ID", empId), new SqlParameter("@SUPER_ROLE", SUPER_ROLE), new SqlParameter("@USER_LOC_ID", USER_LOC_ID) };
+                DataSet ds = new DataAccess(sqlConnection.GetConnectionString()).GetDataSet("[iTMS].[USP_GET_CN_INFO_FOR_CN_STOCK_MANUAL]", CommandType.StoredProcedure, param);
+                if (ds != null && ds.Tables.Count > 0)
+                {
+                    if (ds.Tables[0].Rows.Count > 0)
+                    {
+                        cn.CN_ID = Convert.ToDecimal(ds.Tables[0].Rows[0]["CN_ID"] == DBNull.Value ? "0" : ds.Tables[0].Rows[0]["CN_ID"]);
+                        cn.CN_NO = Convert.ToString(ds.Tables[0].Rows[0]["CN_NO"] == DBNull.Value ? "" : ds.Tables[0].Rows[0]["CN_NO"]);
+                        cn.CN_DATE = Convert.ToString(ds.Tables[0].Rows[0]["CN_DATE"] == DBNull.Value ? "" : ds.Tables[0].Rows[0]["CN_DATE"]);
+                        cn.CN_EXCEPT_ID = Convert.ToInt32(ds.Tables[0].Rows[0]["CN_EXCEPT_ID"] == DBNull.Value ? "0" : ds.Tables[0].Rows[0]["CN_EXCEPT_ID"]);
+                        cn.CN_EXCEPT_NAME = Convert.ToString(ds.Tables[0].Rows[0]["CN_EXCEPT_NAME"] == DBNull.Value ? "" : ds.Tables[0].Rows[0]["CN_EXCEPT_NAME"]);
+                        cn.CN_STATUS = Convert.ToBoolean(ds.Tables[0].Rows[0]["CN_STATUS"] == DBNull.Value ? "0" : ds.Tables[0].Rows[0]["CN_STATUS"]);
+                        cn.CN_BOOKING_BR_ID = Convert.ToInt32(ds.Tables[0].Rows[0]["CN_BOOKING_BR_ID"] == DBNull.Value ? "0" : ds.Tables[0].Rows[0]["CN_BOOKING_BR_ID"]);
+                        cn.CN_BOOKING_BR_NAME = Convert.ToString(ds.Tables[0].Rows[0]["CN_BOOKING_BR_NAME"] == DBNull.Value ? "" : ds.Tables[0].Rows[0]["CN_BOOKING_BR_NAME"]);
+                        cn.CN_APPROVED = Convert.ToInt32(ds.Tables[0].Rows[0]["CN_APPROVED"] == DBNull.Value ? "0" : ds.Tables[0].Rows[0]["CN_APPROVED"]);
+                        cn.CN_BILL_ID = Convert.ToInt32(ds.Tables[0].Rows[0]["BILL_ID"] == DBNull.Value ? "0" : ds.Tables[0].Rows[0]["BILL_ID"]);
+                        cn.CN_MR_ID = Convert.ToInt32(ds.Tables[0].Rows[0]["MR_ID"] == DBNull.Value ? "0" : ds.Tables[0].Rows[0]["MR_ID"]);
+                        cn.CN_BTYPE_ID = Convert.ToInt32(ds.Tables[0].Rows[0]["CN_BTYPE_ID"] == DBNull.Value ? "0" : ds.Tables[0].Rows[0]["CN_BTYPE_ID"]);
+                    }
+                }
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+            return cn;
+        }
+
+        public CN_Manual_Stocks GET_CN_DTLS_FOR_CN_STOCK_MANUAL(int bookBrId, string cnNo)
+        {
+            SqlParameter[] param = { new SqlParameter("@CN_BOOKING_BR_ID", bookBrId), new SqlParameter("@CN_NO", cnNo) };
+            using (DataSet ds = new DataAccess(sqlConnection.GetConnectionString()).GetDataSet("[iTMS].[USP_GET_CN_DTLS_FOR_CN_STOCK_MANUAL]", CommandType.StoredProcedure, param))
+            {
+                CN_Manual_Stocks cn = new CN_Manual_Stocks();
+                if (ds != null && ds.Tables[0].Rows.Count > 0)
+                {
+                    if (Convert.ToString(ds.Tables[0].Rows[0]["CN_ID"]) != string.Empty)
+                    {
+                        DataRow row = ds.Tables[0].Rows[0];
+                        cn.CN_ID = Convert.ToDecimal(row["CN_ID"]);
+                        cn.CN_NO = Convert.ToString(ds.Tables[0].Rows[0]["CN_NO"] == DBNull.Value ? "" : ds.Tables[0].Rows[0]["CN_NO"]);
+                        cn.CN_DATE = Convert.ToString(ds.Tables[0].Rows[0]["CN_DATE"] == DBNull.Value ? "" : ds.Tables[0].Rows[0]["CN_DATE"]);
+                         
+                        cn.CN_BOOKING_BR_NAME = Convert.ToString(row["B_BR_CODE"] == DBNull.Value ? "" : (row["B_BR_CODE"] + " - " + row["B_BR_NAME"]));
+                        cn.CN_BOOKING_BR_CODE = Convert.ToString(row["B_BR_CODE"] == DBNull.Value ? "" : row["B_BR_CODE"]);
+
+                        cn.CN_DESTINATION_BR_NAME = Convert.ToString(row["D_BR_NAME"] == DBNull.Value ? "" : (row["D_BR_CODE"] + " - " + row["D_BR_NAME"]));
+                        cn.CN_DESTINATION_BR_CODE = Convert.ToString(row["D_BR_CODE"] == DBNull.Value ? "" : row["D_BR_CODE"]);
+                        cn.CN_DESTINATION_BR_ID = Convert.ToString(row["CN_DESTINATION_BR_ID"]);
+
+                        cn.CN_NO_PKG = Convert.ToString(row["CN_NO_PKG"] == DBNull.Value ? "0" : row["CN_NO_PKG"]);
+                        cn.CN_ACTUAL_WEIGHT = Convert.ToString(row["CN_ACTUAL_WEIGHT"] == DBNull.Value ? "0" : row["CN_ACTUAL_WEIGHT"]);
+                        cn.CN_CHARGE_WEIGHT = Convert.ToString(row["CN_CHARGE_WEIGHT"] == DBNull.Value ? "0" : row["CN_CHARGE_WEIGHT"]);
+                        cn.CN_BTYPE_ID = Convert.ToString(row["CN_BTYPE_ID"] == DBNull.Value ? "0" : row["CN_BTYPE_ID"]);
+                        cn.CN_BTYPE_NAME = Convert.ToString(row["CN_BTYPE_NAME"] == DBNull.Value ? "0" : row["CN_BTYPE_NAME"]);
+                        cn.CN_BTYPE_DESC = Convert.ToString(row["CN_BTYPE_DESC"] == DBNull.Value ? "0" : row["CN_BTYPE_DESC"]);
+                        cn.CN_LOOSE_PKG = Convert.ToString(row["CN_LOOSE_PKG"] == DBNull.Value ? "0" : row["CN_LOOSE_PKG"]);
+
+                    } 
+                }
+
+                return cn;
+            }
+        }
+
+        public object SELECT_CN_STOCK_BALANCE(int stkBrId, long cnId)
+        {
+            string balPkgs = "0", balActWt = "0",balChrgWt = "0";
+            SqlParameter[] param = { new SqlParameter("@STK_BR_ID", stkBrId), new SqlParameter("@CN_ID", cnId) };
+            using (DataTable dt = new DataAccess(sqlConnection.GetConnectionString()).GetDataTable("[iTMS].[USP_SELECT_CN_STOCK_BALANCE]", CommandType.StoredProcedure, param))
+            {
+                if (dt.Rows.Count > 0)
+                {
+                    if (Convert.ToString(dt.Rows[0]["BAL_PKGS"]) != string.Empty)
+                    {
+                        DataRow row = dt.Rows[0];
+                        balPkgs = Convert.ToString(row["BAL_PKGS"] == DBNull.Value ? "0" : row["BAL_PKGS"]);
+                        balActWt = Convert.ToString(row["BAL_ACT_WT"] == DBNull.Value ? "0" : row["BAL_ACT_WT"]);
+                        balChrgWt = Convert.ToString(row["BAL_CHRG_WT"] == DBNull.Value ? "0" : row["BAL_CHRG_WT"]);
+                    }
+                }
+            }
+            return new { balPkgs, balActWt, balChrgWt };
+        }
+
+        public string INSERT_CN_MANUAL_STOCKS(CN_Manual_Stocks cn)
+        {
+            string errorMsg = "";
+            using (var connection = new SqlConnection(sqlConnection.GetConnectionString()))
+            {
+                connection.Open();
+                SqlCommand command;
+                SqlTransaction transactionScope = null;
+                transactionScope = connection.BeginTransaction(IsolationLevel.ReadCommitted);
+                try
+                {
+                    SqlParameter[] param = { new SqlParameter("@ERRORSTR", SqlDbType.VarChar, 200) 
+                                            ,new SqlParameter("@CMS_ID",SqlDbType.Decimal)    
+                                            ,new SqlParameter("@CMS_CN_ID", cn.CN_ID)                                            
+                                            ,new SqlParameter("@CMS_STK_BR_ID", (cn.STK_BR_ID ==null)?(object)DBNull.Value:cn.STK_BR_ID)
+                                            ,new SqlParameter("@CMS_NO_OF_PKGS", (cn.STK_NO_OF_PKG ==null)?(object)DBNull.Value:cn.STK_NO_OF_PKG)
+                                            ,new SqlParameter("@CMS_ACT_WT", (cn.STK_ACT_WT==null)?(object)DBNull.Value:cn.STK_ACT_WT)
+                                            ,new SqlParameter("@CMS_CHRG_WT", (cn.STK_CHG_WT==null)?(object)DBNull.Value:cn.STK_CHG_WT)
+                                            ,new SqlParameter("@CMS_ADD_REM_ID",(cn.CN_ADD_REM_ID==null)?(object)DBNull.Value:cn.CN_ADD_REM_ID)
+                                            ,new SqlParameter("@CMS_ADDED_BY", (cn.CN_ADD_BY ==null)?(object)DBNull.Value:cn.CN_ADD_BY)
+                                            ,new SqlParameter("@CMS_PURPOSE", (cn.CN_PURPOSE ==null)?(object)DBNull.Value:cn.CN_PURPOSE)
+                                            ,new SqlParameter("@CMS_USER_TYPE", (cn.CN_USER_TYPE ==null)?(object)DBNull.Value:cn.CN_USER_TYPE)
+                                           };
+
+                    param[0].Direction = ParameterDirection.Output;
+                    param[1].Direction = ParameterDirection.Output;
+
+                    new DataAccess().InsertWithTransaction("[iTMS].[USP_INSERT_CN_MANUAL_STOCKS]", CommandType.StoredProcedure, out command, connection, transactionScope, param);
+                    string error_1 = (string)command.Parameters["@ERRORSTR"].Value;
+                    decimal CMS_ID = (decimal)command.Parameters["@CMS_ID"].Value;
+
+                    if ((error_1 ?? "") != "")
+                    {
+                        errorMsg = error_1;
+                    }
+
+                    if (errorMsg == "")
+                    {
+                        transactionScope.Commit();
+                    }
+                    else
+                    {
+                        transactionScope.Rollback();
+                    }
+                }
+                catch (Exception)
+                {
+                    errorMsg = "Error: Exception occured.";
+                    transactionScope.Rollback();
+                }
+                finally
+                {
+                    connection.Close();
+                }
+            }
+
+            return errorMsg;
+        }
+        
+        #endregion
+
+        #region SELECT_Challan_Lorry_Vehicle_Update
+        public Challan_Lorry_Vehicle_Update SELECT_Challan_Lorry_Vehicle_Update(int BR_ID, string CH_NO)
+        {
+            SqlParameter[] param = { new SqlParameter("@BR_ID", BR_ID), new SqlParameter("@CH_NO", CH_NO) };
+            using (DataSet ds = new DataAccess(sqlConnection.GetConnectionString()).GetDataSet("[iTMS].[USP_SELECT_Challan_Lorry_Vehicle_Update]", CommandType.StoredProcedure, param))
+            {
+                Challan_Lorry_Vehicle_Update CH = new Challan_Lorry_Vehicle_Update();
+                if (ds != null && ds.Tables[0].Rows.Count > 0)
+                {
+                    DataRow row = ds.Tables[0].Rows[0];
+                    CH.CH_ID = Convert.ToString(row["CH_ID"] == DBNull.Value ? "" : row["CH_ID"]);
+                    CH.strVeh_No = Convert.ToString(ds.Tables[0].Rows[0]["Veh_No"] == DBNull.Value ? "" : ds.Tables[0].Rows[0]["Veh_No"]);
+                    CH.strOwner_Type = Convert.ToString(ds.Tables[0].Rows[0]["Owner_Type"] == DBNull.Value ? "" : ds.Tables[0].Rows[0]["Owner_Type"]);
+                    CH.strFleet_Code = Convert.ToString(ds.Tables[0].Rows[0]["Fleet_Code"] == DBNull.Value ? "" : ds.Tables[0].Rows[0]["Fleet_Code"]);
+                    CH.strChallan_Date = Convert.ToString(row["Challan_Date"] == DBNull.Value ? "" : (row["Challan_Date"]));
+                    CH.strOwner_Name = Convert.ToString(row["Owner_Name"] == DBNull.Value ? "" : (row["Owner_Name"]));
+                    CH.strPAN_No = Convert.ToString(row["PAN_No"] == DBNull.Value ? "" : row["PAN_No"]);
+                    CH.strC_Ref_ID = Convert.ToString(row["C_Ref_ID"] == DBNull.Value ? "" : row["C_Ref_ID"]);
+                    CH.strOwner_Address = Convert.ToString(row["Owner_Address"] == DBNull.Value ? "" : row["Owner_Address"]);
+                    CH.strOwner_Address1 = Convert.ToString(row["Owner_Address1"] == DBNull.Value ? "" : row["Owner_Address1"]);
+                    CH.strTotal_Hire = Convert.ToString(row["Total_Hire"] == DBNull.Value ? "" : row["Total_Hire"]);
+                    CH.strPart_Paid = Convert.ToString(row["Part_Paid"] == DBNull.Value ? "" : row["Part_Paid"]);
+                    CH.strTDS_Amt = Convert.ToString(row["TDS_Amt"] == DBNull.Value ? "" : row["TDS_Amt"]);
+                    CH.strPetrocard_Amt = Convert.ToString(row["Petrocard_Amt"] == DBNull.Value ? "" : row["Petrocard_Amt"]);
+                    CH.strPetrocard_No = Convert.ToString(row["Petrocard_No"] == DBNull.Value ? "" : row["Petrocard_No"]);
+                    CH.strCredit_Details = Convert.ToString(row["Credit_Details"] == DBNull.Value ? "" : row["Credit_Details"]);
+                    CH.strPetrocard_Vehicle = Convert.ToString(row["Petrocard_Vehicle"] == DBNull.Value ? "" : row["Petrocard_Vehicle"]);
+                    CH.CH_TYPE = Convert.ToString(row["CH_TYPE"] == DBNull.Value ? "" : row["CH_TYPE"]);
+                }
+
+                return CH;
+            }
+        }
+
+
+
+        public string Challan_Lorry_Vehicle_For_Update(Challan_Lorry_Vehicle_Update cn)
+        {
+            string errorMsg = "";
+            using (var connection = new SqlConnection(sqlConnection.GetConnectionString()))
+            {
+                connection.Open();
+                SqlCommand command;
+                SqlTransaction transactionScope = null;
+                transactionScope = connection.BeginTransaction(IsolationLevel.ReadCommitted);
+                try
+                {
+                    SqlParameter[] param = { new SqlParameter("@ERRORSTR", SqlDbType.VarChar, 200)     
+                                            ,new SqlParameter("@CH_ID", (cn.CH_ID ==null)?(object)DBNull.Value:cn.CH_ID)
+                                            ,new SqlParameter("@OWNER_TYPE", (cn.OWNER_TYPE ==null)?(object)DBNull.Value:cn.OWNER_TYPE)
+                                            ,new SqlParameter("@VEH_NO", (cn.VEHICLE_NO ==null)?(object)DBNull.Value:cn.VEHICLE_NO)                                                                              
+                                            ,new SqlParameter("@FLEET_ID", (cn.Fleet_Code==null)?(object)DBNull.Value:cn.Fleet_Code)
+                                            ,new SqlParameter("@C_REF_ID", (cn.C_Ref_ID==null)?(object)DBNull.Value:cn.C_Ref_ID)
+                                            ,new SqlParameter("@Owner_Name",(cn.OWNER_NAME==null)?(object)DBNull.Value:cn.OWNER_NAME)
+                                            ,new SqlParameter("@Owner_PAN",(cn.OWNER_PAN==null)?(object)DBNull.Value:cn.OWNER_PAN)
+                                            ,new SqlParameter("@Owner_Address", (cn.OWNER_ADDRESS ==null)?(object)DBNull.Value:cn.OWNER_ADDRESS)                                                                                                                           
+                                           };
+                    param[0].Direction = ParameterDirection.Output;
+                    new DataAccess().InsertWithTransaction("Pending", CommandType.StoredProcedure, out command, connection, transactionScope, param);
+                    errorMsg = (string)command.Parameters["@ERRORSTR"].Value;
+                    if (errorMsg == "")
+                    {
+                        transactionScope.Commit();
+                    }
+                    else
+                    {
+                        transactionScope.Rollback();
+                    }
+                }
+                catch (Exception)
+                {
+                    errorMsg = "Error: Exception occured.";
+                    transactionScope.Rollback();
+                }
+                finally
+                {
+                    connection.Close();
+                }
+            }
+
+            return errorMsg;
+        }
+
+        #endregion
+
+        #region Challan_CNs_Package_And_Weight_Change
+
+        public List<Challan_List> GET_CH_INFO_FOR_Pkg_And_Weight_CHANGE(decimal chId) 
+        {
+            SqlParameter[] param = { new SqlParameter("@CH_ID", chId) };
+            DataTable dt = new DataAccess(sqlConnection.GetConnectionString()).GetDataTable("[iTMS].[USP_SELECT_CN_LIST_BY_CH_ID_FOR_Pkg_ANd_Weight_CHANGE]", CommandType.StoredProcedure, param);
+            List<Challan_List> _CN_LIST = new List<Challan_List>();
+
+            if (dt != null && dt.Rows.Count > 0)
+            {
+                foreach (DataRow row in dt.Rows)
+                {
+                    _CN_LIST.Add(new Challan_List  
+                    {
+                        CH_ID = Convert.ToDecimal(row["CH_ID"] == DBNull.Value ? "0" : row["CH_ID"]),
+                        CHCN_ID = Convert.ToDecimal(row["CHCN_ID"] == DBNull.Value ? "0" : row["CHCN_ID"]),
+                        CH_CN_ID = Convert.ToDecimal(row["CH_CN_ID"] == DBNull.Value ? "0" : row["CH_CN_ID"]),
+                        CH_CN_NO = Convert.ToString(row["CH_CN_NO"]),                       
+                        CH_CN_DEL_TYPE = Convert.ToString(row["CH_CN_DEL_TYPE"]),
+                        CH_CN_PKG = Convert.ToDecimal(row["CH_CN_PKG"] == DBNull.Value ? "0" : row["CH_CN_PKG"]),
+                        CH_CN_ACT_WT = Convert.ToDecimal(row["CH_CN_ACT_WT"] == DBNull.Value ? "0" : row["CH_CN_ACT_WT"]),                      
+                        CH_CN_BKST = Convert.ToString(row["CH_CN_BKST"]),
+                        CN_PKG = Convert.ToDecimal(row["CN_PKG"] == DBNull.Value ? "0" : row["CN_PKG"]),
+                        CN_WT = Convert.ToDecimal(row["CN_WT"] == DBNull.Value ? "0" : row["CN_WT"])
+                    });
+                }
+            }
+            return _CN_LIST;
+        }
+
+
+        public string UPDATE_CH_INFO_FOR_Pkg_And_Weight_CHANGE(Challan_CNs_Pkg_And_Weight_Change cdt)
+        {
+            string errorMsg = "";
+            using (var connection = new SqlConnection(sqlConnection.GetConnectionString()))
+            {
+                connection.Open();
+                SqlCommand command;
+                SqlTransaction transactionScope = null;
+                transactionScope = connection.BeginTransaction(IsolationLevel.ReadCommitted);
+                try
+                {
+                    foreach (Challan_List cn in cdt.Challan_CN_LIST)
+                    {
+                        if (cn.IsChecked == true)
+                        {
+                            SqlParameter[] parameters =
+                            {
+                               new SqlParameter("@ERRORSTR", SqlDbType.VarChar, 200) 
+                              ,new SqlParameter("@CH_ID", cn.CH_ID) 
+                              ,new SqlParameter("@CHCN_ID", cn.CHCN_ID)    
+                              ,new SqlParameter("@CH_CN_ID", cn.CH_CN_ID)
+                              ,new SqlParameter("@CH_CN_NO", cn.CH_CN_NO)                                                                       
+                              ,new SqlParameter("@CH_CN_PKG", cn.NEW_CH_CN_PKG)
+                              ,new SqlParameter("@CH_CN_ACT_WT", cn.NEW_CH_CN_ACT_WT)
+                          
+                              ,new SqlParameter("@CH_ADDBY_TYPE", cdt.CH_USER_TYPE)
+                              ,new SqlParameter("@CH_ADDBY", cdt.CH_ADDED_BY)                                    
+                              ,new SqlParameter("@CH_NO", cdt.CH_NO)                                    
+                              ,new SqlParameter("@CH_CN_BKST", cn.CH_CN_BKST)                                    
+                            };
+
+                            parameters[0].Direction = ParameterDirection.Output;
+
+                            new DataAccess().InsertWithTransaction("Pending", CommandType.StoredProcedure, out command, connection, transactionScope, parameters);
+                            string error_1 = (string)command.Parameters["@ERRORSTR"].Value;
+                            if (error_1 != "") { errorMsg = error_1; break; }
+                        }
+                    }
+
+                    //Start Ch History Entry
+                    string hisRemarks = "CH No : " + cdt.CH_NO + " is updated on " + DateTime.Now.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture) + " by " + cdt.CH_UPDATE_BY_NAME;
+                    int processId = 0;
+                    string processName = "CHALLAN INFO FOR PACKAGE AND WEIGHT CHANGE";
+                    SqlParameter[] param8 = {
+                                                  new SqlParameter("@HIS_ID", SqlDbType.Decimal)
+                                                , new SqlParameter("@ERRORSTR", SqlDbType.VarChar, 200)
+                                                , new SqlParameter("@HIS_CH_ID", cdt.CH_ID)
+                                                , new SqlParameter("@HIS_CH_NO",cdt.CH_NO)
+                                                , new SqlParameter("@HIS_REMARKS", hisRemarks)
+                                                , new SqlParameter("@HIS_PROCESS_ID", processId)
+                                                , new SqlParameter("@HIS_PROCESS_NAME",processName)
+                                                , new SqlParameter("@HIS_ADDTYPE", cdt.CH_USER_TYPE)
+                                                , new SqlParameter("@HIS_ADDBY", cdt.CH_ADDED_BY) 
+                                            };
+                    param8[0].Direction = ParameterDirection.Output;
+                    param8[1].Direction = ParameterDirection.Output;
+
+                    new DataAccess().InsertWithTransaction("Pending--[iTMS].[USP_INSERT_CHALLAN_HISTORY]", CommandType.StoredProcedure, out command, connection, transactionScope, param8);
+                    string error_9 = (string)command.Parameters["@ERRORSTR"].Value;
+                    decimal HIS_ID = (decimal)command.Parameters["@HIS_ID"].Value;
+                    if (HIS_ID == -1)
+                    {
+                        errorMsg = error_9;
+                    }
+                    //End Ch History Entry 
+
+
+                    if (errorMsg == "")
+                    {
+                        transactionScope.Commit();
+                    }
+                    else
+                    {
+                        transactionScope.Rollback();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    errorMsg = "Error: Exception occured.";
+                    transactionScope.Rollback();
+                }
+                finally
+                {
+                    connection.Close();
+                }
+            }
+            return errorMsg;
+
+        }
+
+        #endregion
+
+    }
+}
+
 _____________________________________________________________
 _____________________________________________________________
 _____________________________________________________________
