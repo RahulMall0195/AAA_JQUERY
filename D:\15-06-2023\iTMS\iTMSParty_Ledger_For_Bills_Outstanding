@@ -1,0 +1,610 @@
+ 
+@model BusinessLayer.Entity.CCDReport.Rpt_Party_Ledger_For_Bills_Outstanding
+@{
+    ViewBag.Title = "Party Ledger For Bills Outstanding";
+    Layout = "~/Views/Shared/_MainDashboard.cshtml";
+}
+@*@Styles.Render("~/bundles/CommanStyle")
+    @Scripts.Render("~/bundles/CommanScripts")*@
+@Styles.Render("~/bundles/Report/CommanStyle")
+@Scripts.Render("~/bundles/Report/CommanScripts")
+
+<style>
+    @@media screen and (max-width: 600px) {
+        .input-group-addon {
+            visibility: hidden;
+            clear: both;
+            float: left;
+            display: none;
+        }
+    }
+</style>
+
+@using (Html.BeginForm("Party_Ledger_For_Bills_Outstanding", "CCDReport", FormMethod.Post, new { @id = "frmBills_Outstanding" }))
+{
+    @Html.AntiForgeryToken()
+    @Html.ValidationSummary(true)
+    Html.RenderPartial("_Alerts");
+    <div class="alert alert-danger alert-dismissable" id="pageAlert" style="display:none;">
+        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+        <b id="alertMessage"></b>
+    </div>
+
+    <div class="row">
+        <div class="col-xs-12 col-sm-4">
+            <div class="widget-box">
+                <div class="widget-header">
+                    <h4 class="widget-title">Input Parameters Box</h4>
+                    <span class="widget-toolbar">
+                        <a href="#" data-action="collapse">
+                            <i class="ace-icon fa fa-chevron-up"></i>
+                        </a>
+                    </span>
+                </div>
+                <div class="widget-body">
+                    <div class="widget-main">
+                        <div class="row">
+                            <div class="col-xs-12" style="padding: 0px 0px 0px 0px;">
+                                <div class="col-xs-6">
+                                    <label for="ddlRegion" class="lbl_9">Region</label>
+                                    @Html.DropDownListFor(x => x.R_ID, Model.R_LIST, "", new { @class = "chosen-select form-control", @id = "ddlRegion", @data_placeholder = "SELECT REGION" })
+                                </div>
+                                <div class="col-xs-6">
+                                    <label for="ddlDivision" class="lbl_9">Division</label>
+                                    @Html.DropDownListFor(x => x.DIV_ID, new SelectList(Enumerable.Empty<SelectListItem>(), "Value", "Text"), "", new { @class = "chosen-select form-control", @id = "ddlDivision", @data_placeholder = "SELECT DIVISION" })
+                                    @Html.ValidationMessageFor(x => x.DIV_ID)
+                                    @Html.HiddenFor(x => x.HDN_DIV_ID)
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-xs-12" style="padding: 0px 0px 0px 0px;">
+                                <div class="col-xs-6">
+                                    <label for="txtReportfDt" class="lbl_9">Bill From Date</label>
+                                    @Html.TextBoxFor(x => x.BILLS_F_DATE, "{0:yyyy-MM-dd}", new { @id = "txtReportfDt", @type = "date", @class = "form-control mobDate", @maxlength = "10", @Style = "padding-bottom:5px;" })
+                                    @Html.TextBoxFor(x => x.BILLS_F_DATE1, new { @id = "txtReportfDt1", @class = "form-control datepicker deskDate", @maxlength = "10", @placeholder = "dd/mm/yyyy", @autocomplete = "off", @Style = "padding-bottom:5px;", @readonly = "readonly" })
+                                </div>
+                                <div class="col-xs-6">
+                                    <label for="txtReporttDt" class="lbl_9">Bill To Date</label>
+                                    @Html.TextBoxFor(x => x.BILLS_UPTO_DATE, "{0:yyyy-MM-dd}", new { @id = "txtReporttDt", @type = "date", @class = "form-control mobDate", @maxlength = "10", @Style = "padding-bottom:5px;" })
+                                    @Html.TextBoxFor(x => x.BILLS_UPTO_DATE1, new { @id = "txtReporttDt1", @class = "form-control datepicker deskDate", @maxlength = "10", @placeholder = "dd/mm/yyyy", @autocomplete = "off", @Style = "padding-bottom:5px;", @readonly = "readonly" })
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-xs-12" style="padding: 0px 0px 0px 0px;">
+                                <div class="col-xs-6">
+                                    <label for="txtCBSDt" class="lbl_9">CBS Date</label>
+                                    @Html.TextBoxFor(x => x.CBS_DATE, "{0:yyyy-MM-dd}", new { @id = "txtCBSDt", @type = "date", @class = "form-control mobDate", @maxlength = "10", @Style = "padding-bottom:5px;" })
+                                    @Html.TextBoxFor(x => x.CBS_DATE1, new { @id = "txtCBSDt1", @class = "form-control datepicker deskDate", @maxlength = "10", @placeholder = "dd/mm/yyyy", @autocomplete = "off", @Style = "padding-bottom:5px;", @readonly = "readonly" })
+                                </div>
+
+                                <div class="col-xs-6">
+                                    <label for="ddlBrSelect" class="lbl_9">Branch</label>
+                                    @Html.DropDownListFor(x => x.SEARCH_BR_ID, Model.SEARCH_BR_LIST, "", new { @class = "chosen-select form-control", @id = "ddlBrSelect", @data_placeholder = "ALL BRANCH" })
+                                </div>
+                                
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-xs-12" style="padding: 0px 0px 0px 0px;">                           
+                                <div class="col-xs-6">
+                                    <div style="padding-top:10px;">
+                                        <label>
+                                            <input id="chkIncCns" name="form-field-checkbox" type="checkbox" checked="@(Model.chkIncCns == "1" ? true : false)" /> 
+                                            <span class="lbl">Include Consignment Details</span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xs-12 col-sm-4">
+            <div class="widget-box">
+                <div class="widget-header">
+                    <h4 class="widget-title">Branch Box</h4>
+                    <span class="widget-toolbar">
+                        <a href="#" data-action="collapse">
+                            <i class="ace-icon fa fa-chevron-up"></i>
+                        </a>
+                    </span>
+                    <span class="input-icon pull-right" style="padding:2px; ">
+                        <input type="text" autocomplete="off" class="form-control" id="txtSearchTable" placeholder="Search Branch" />
+                        <i class="ace-icon fa fa-search"></i>
+                    </span>
+                </div>
+                <div class="widget-body">
+                    <div id="bodyBranchList" class="widget-main" style="height: 256px; overflow-y: auto; overflow-x: hidden">
+                    </div>
+                    @Html.HiddenFor(model => model.brListData, new { id = "hdn_brListData" })
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-4">
+            <div class="widget-box">
+                <div class="widget-header">
+                    <h4 class="widget-title"><span id="widget_lbl">Party Checklist Box</span></h4>
+                    <span class="widget-toolbar">
+                        <a href="#" data-action="collapse">
+                            <i class="ace-icon fa fa-chevron-up"></i>
+                        </a>
+                    </span>
+                </div>
+
+                <div class="widget-body">
+                    <div id="bodyPartyList" class="widget-main" style="height: 256px; overflow-y: auto; overflow-x: hidden">
+                        @*Here Party List class="form-control"*@
+                        <input type="text" class="txtPartyList" id="txtPartList" name="party" />
+                    </div>
+                    @Html.HiddenFor(model => model.partyListData, new { id = "hdn_partyListData" })
+                    @Html.HiddenFor(model => model.PartyJsonList, new { id = "hdnPartyJsonList" })
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row" style="text-align:center; padding-bottom:5px;">
+        <div class="col-xs-12 col-sm-12 col-md-12">
+            <input type="button" id="btnShow" class="btn btn-success" value="Process Report" name="Save" style="width:auto;" />
+            <input type="reset" class="btn btn-default" value="Reset [Ctrl+R]" style="width:auto;" id="btnReset" />
+        </div>
+    </div>
+    <div class="row" style="text-align:center; padding-bottom:5px;">
+        <div class="col-xs-12 col-sm-12 col-md-12">
+            <span id="spnError" class="field-validation-error">&nbsp;</span>
+        </div>
+    </div>
+}
+
+<script>
+    $(document).ready(function () {
+        function init() {
+            shortcut.add("Ctrl+R", function () {
+                // Reset
+                var url = '@Url.Action("Party_Ledger_For_Bills_Outstanding", "CCDReport")';
+                window.location.href = url;
+            });
+        }
+        window.onload = init;
+
+        /*----- Chosen Select Dropdown Validation ----*/
+        var validator = $("#frmBills_Outstanding").data('validator');
+        validator.settings.ignore = ":hidden:not(select)";
+        $('.chosen-select').chosen().change(function () {
+            $(this).trigger('click');
+        });
+        /*----- Chosen Select Dropdown Validation End----*/
+
+        $('#btnShow').click(function (e) {      
+            if (CheckSession(e) == 1) {
+                getReport();
+            }
+        });
+       
+
+
+
+        //$(document).on("click", "li.token-input-token", function() {     
+        //    alert("Hi");
+        //    if ($("#txtPartList").val() != '') {
+        //        $('ul.token-input-list li input').prop("disabled", true);
+        //        $('ul.token-input-list li input').hide();
+        //    }
+        //    else {
+        //        $('ul.token-input-list li input').prop("disabled", false);
+        //    }
+        //});
+
+
+        //$("#bodyPartyList").click(function () {            
+        //    if ($("#txtPartList").val() != '') {               
+        //        $('ul.token-input-list li input').prop("disabled", true);
+        //        $('ul.token-input-list li input').hide();
+        //}
+        //else {
+        //    $('ul.token-input-list li input').prop("disabled", false);
+        //}
+        //});
+
+
+
+
+
+
+
+        function getReport() {
+            var rId = $("#ddlRegion option:selected").val() == '' ? '0' : $("#ddlRegion option:selected").val();
+            var divId = $("#ddlDivision option:selected").val() == '' ? '0' : $("#ddlDivision option:selected").val();
+            var ddlBrSelect = $("#ddlBrSelect option:selected").val() == '' ? '0' : $("#ddlBrSelect option:selected").val();
+            var fDate = $('#txtReportfDt1').val();
+            var eDate = $('#txtReporttDt1').val();
+            var cbsDt = $('#txtCBSDt1').val();
+            $("input[name=partyListData]").val($("#txtPartList").val());
+            var selBr = 0;
+            var brList = '0';
+            if (ddlBrSelect==1) {
+                brList = $("#hdn_brListData").val() == '' ? '0' : $("#hdn_brListData").val();
+                selBr = 1;
+            }
+            else {
+                selBr = 0;
+            }            
+
+            var incCns = 0;
+            if ($("#chkIncCns").is(':checked')) {
+                incCns = 1;
+            }
+
+            var PartyType = 0;
+            if ($("#chkParty").is(':checked')) {
+                PartyType = 1;
+            }
+
+            var partyList = $("#txtPartList").val() == '' ? '0' : $("#txtPartList").val();
+            var partyJsonList = null;
+            if ($("#txtPartList").val() != '') {
+                partyJsonList = $("#txtPartList").tokenInput("get");
+            }         
+          
+            // Report Parameters
+            var paraList = new Array();
+            paraList.push(rId);
+            paraList.push(divId);
+            paraList.push(selBr);
+            paraList.push(fDate);
+            paraList.push(eDate);
+            paraList.push(cbsDt);
+            paraList.push(incCns);
+            paraList.push(PartyType);
+
+            // End Report Parameters
+            var reportId = 'CCD000013';
+            var flag = 0;
+            if (parseInt(divId) == 0) {
+                flag = 1;
+                $('#spnError').text('Select Division.').show();
+                return false;
+            }
+
+            if (parseInt(flag) == 0) {
+                var dataObject = '{reportId:"' + reportId + '",rptPar:"' + paraList + '",brList:"' + brList + '",partyList:"' + partyList + '",partyJsonList:' + JSON.stringify(partyJsonList) + '}';
+
+                $.ajax({
+                    type: "POST",
+                    url: '../CCDReport/SetTempData',
+                    data: dataObject,
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "text",
+                    beforeSend: function () {
+                        $('#LoadingModalLabel').text('Please wait... We are processing your request.').show();
+                        $('#LoadingModal').modal('show');
+                    },
+                    success: function (r) {
+                        var url = '@Url.Action("ReportTemplate", "CCDReport")';
+                        window.location.href = url;
+                        $('#spnError').text('');
+                    },
+                    complete: function (json) {
+                        $("#LoadingModal").modal('hide');
+                    },
+                    error: function (result) {
+                        alert(result.status + ': ' + result.statusText);
+                    }
+                });
+            }
+        }
+        
+
+        $("#txtSearchTable").keyup(function () {
+            var value = this.value.toLowerCase().trim();
+
+            $("#dvBrList > .ui-checkbox").each(function (index) {
+                $(this).find("label").each(function () {
+                    var id = $(this).text().toLowerCase().trim();
+                    var not_found = (id.indexOf(value) == -1);
+                    $(this).closest('.ui-checkbox').toggle(!not_found);
+                    return not_found;
+                });
+            });
+        });
+
+        $("#ddlDivision").change(function () {
+            var ddlBrSelect = $("#ddlBrSelect option:selected").val() == '' ? '0' : $("#ddlBrSelect option:selected").val();
+            $('#spnError').text('');
+            var dId = $("#ddlDivision option:selected").val() == '' ? '0' : $("#ddlDivision option:selected").val();
+
+            if (ddlBrSelect==0) {
+                if (dId > 0) {
+                    AllAccessBranch(0);
+                }
+            }
+            else {
+                AllAccessBranch(1);
+            }
+            chkBrListData();
+        });
+
+        $("#ddlDivision").change(function () {
+            BranchList();
+        });
+
+        Division();
+
+        function Division() {
+            var regionId = $("#ddlRegion option:selected").val() == '' ? '0' : $("#ddlRegion option:selected").val();
+            var str = '';
+            if (parseInt(regionId) > 0) {
+                $.ajax({
+                    type: "GET",
+                    url: "../Report/GetDivisionList",
+                    data: { rId: regionId },
+                    dataType: "json",
+                    async: false,
+                    success: function (data) {
+                        str = '<option value=""></option>';
+                        if (data.length > 0) {
+                            for (var i = 0; i < data.length; i++) {
+                                str += '<option value=' + data[i].DIV_ID + '>' + data[i].DIV_CODE + ' - ' + data[i].DIV_NAME + '</option>';
+                            }
+                            $("#ddlDivision").empty().append(str);
+                            $("#ddlDivision").trigger("chosen:updated");
+                        }
+                        $("#ddlDivision").val($("#HDN_DIV_ID").val()).trigger("chosen:updated");
+                    }
+                });
+            }
+            else {
+                str = '<option value=""></option>';
+                $("#ddlDivision").empty().append(str);
+                $("#ddlDivision").trigger("chosen:updated");
+            }
+        }
+
+        $('#ddlRegion').on('change', function () {
+            Division();
+            AllAccessBranch(0);
+            $('#spnError').text('').hide();
+        });
+
+        function AllAccessBranch(chkState) {
+            var body = '';
+            var divId = $("#ddlDivision option:selected").val() == '' ? '0' : $("#ddlDivision option:selected").val();
+            var rId = $("#ddlRegion option:selected").val() == '' ? '0' : $("#ddlRegion option:selected").val();
+            if (parseInt(divId) > 0) {
+                $.ajax({
+                    url: "../CCDReport/GET_ACCOUNTING_BRANCH_LIST_BY_FILTER",
+                    type: "GET",
+                    data: { R_ID: rId, DIV_ID: divId },
+                    dataType: "json",
+                    async: false,
+                    success: function (data) {
+                        var body = '';
+                        body += '<div id="dvBrList" class="row no-gutters" style="display:block">';
+                        if (data.length > 0) {
+                            for (var i = 0; i < data.length; i++) {
+                                body += '<div class="col-xs-6 col-sm-4 col-md-4 col-lg-4 ui-checkbox">';
+                                body += '<label class="checkbox-inline" style="font-size: 10px;">';
+                                if (chkState == 1) {
+                                    body += '<input id="chkBr_' + data[i].BR_ID + '" type="checkbox" value="' + data[i].BR_ID + '" name="chkBranch" class="chkBrnachlist">' + data[i].BR_NAME;
+                                }
+                                else {
+                                    body += '<input id="chkBr_' + data[i].BR_ID + '" type="checkbox" value="' + data[i].BR_ID + '" name="chkBranch" class="chkBrnachlist" checked>' + data[i].BR_NAME;
+                                }
+                                body += '</label>';
+                                body += '</div>';
+                            }
+                            body += '</div>';
+                            $('#bodyBranchList').empty().append(body);
+                        }
+                    }
+                });
+            }
+        }
+
+        $(document).on('change', 'div.ui-checkbox', function () {
+            chkBrListData();
+        });
+
+        function chkBrListData() {
+            chkBrListVal = [];
+            $('input:checkbox.chkBrnachlist:checked').each(function () {
+                chkBrListVal.push($(this).attr('value'));
+                //if (chkBrListVal.length > 20) {
+                //    $(this).prop('checked', false);
+                //    return false;
+                //}
+            });
+            $("input[name=brListData]").val(chkBrListVal);
+        }
+
+        $('#ddlBrSelect').on('change', function () {
+            var divId = $("#ddlDivision option:selected").val() == '' ? '0' : $("#ddlDivision option:selected").val();
+            if (parseInt($(this).val()) == 0 && parseInt(divId) > 0) {
+                $(".chkBrnachlist:checkbox").prop('checked', true);
+            }
+            else {
+                $(".chkBrnachlist:checkbox").prop('checked', false);
+            }
+        });
+
+        $('#btnReset').click(function () {
+            // Reset
+            var url = '@Url.Action("Party_Ledger_For_Bills_Outstanding", "CCDReport")';
+            window.location.href = url;
+        });
+
+        $(function () {
+            $('#txtReportfDt1').datepicker({
+                dateFormat: 'dd/mm/yy'
+                , changeMonth: true
+                , changeYear: true
+                , maxDate: 0
+                , onClose: function (date) {
+                    //Set Minimum Date of EndDatePicker After Selected Date of StartDatePicker
+                    $('#txtReportfDt').val(DateFormat_ddmmyyy_To_yyyymmdd(date));
+
+                    $("#txtReporttDt1").datepicker("option", "minDate", new Date(DateFormat_ddmmyyy_To_yyyymmdd(date)));
+                    document.getElementById("txtReporttDt").setAttribute("min", DateFormat_ddmmyyy_To_yyyymmdd(date));
+                    $("#txtReporttDt1").focus();
+                }
+                , onSelect: function (selectedDate) {
+                    $('#txtReportfDt').val(DateFormat_ddmmyyy_To_yyyymmdd(selectedDate));
+                }
+            });
+
+            $('#txtReporttDt1').datepicker({
+                dateFormat: 'dd/mm/yy'
+                , changeMonth: true
+                , changeYear: true
+                , maxDate: 0
+                , onClose: function (date) {
+                    //Set Minimum Date of EndDatePicker After Selected Date of StartDatePicker
+                    $('#txtReporttDt').val(DateFormat_ddmmyyy_To_yyyymmdd(date));
+                }
+                , onSelect: function (selectedDate) {
+                    $('#txtReporttDt').val(DateFormat_ddmmyyy_To_yyyymmdd(selectedDate));
+                }
+            });
+
+            $('#txtCBSDt1').datepicker({
+                dateFormat: 'dd/mm/yy'
+               , changeMonth: true
+               , changeYear: true
+               , maxDate: 0
+               , onClose: function (date) {
+                   $('#txtCBSDt').val(DateFormat_ddmmyyy_To_yyyymmdd(date));
+               }
+               , onSelect: function (selectedDate) {
+                   $('#txtCBSDt').val(DateFormat_ddmmyyy_To_yyyymmdd(selectedDate));
+               }
+            });
+        });
+
+        $('#ddlEmpCd_chosen').attr("style", "pointer-events: none");
+
+        $("#txtPartList").val('').hide();
+
+
+
+
+        
+
+
+        PartyList();
+
+        function PartyList() {
+
+            chkBrListData();
+            var divId = $("#ddlDivision option:selected").val() == '' ? '0' : $("#ddlDivision option:selected").val();
+            var hdnBr = $("#hdn_brListData").val() == '' ? '0' : $("#hdn_brListData").val();
+            var brSelect = $("#ddlBrSelect option:selected").val() == '' ? '0' : $("#ddlBrSelect option:selected").val();         
+
+            if (divId > 0) {
+                if (brSelect == '0') { }
+                else {
+                    hdnBr = 0;
+                }
+                var url = 'Rpt_GetPartyList?rid=0&did=' + divId + '&brid=0&paid=0&hdnStn=' + hdnBr + "&term=";
+
+                if ($(".token-input-list").length > 0) {
+
+                }
+                else {
+                    var myToken = $("#txtPartList").tokenInput(url, {
+                        preventDuplicates: true,
+                        minChars: 4,
+                        tokenLimit: 20,
+                        hintText: "Type Party Name",
+                        noResultsText: "No Result",
+                        queryParam: "term"
+
+                    });
+                                     
+                    var dArr = JSON.parse($("#hdnPartyJsonList").val());            
+                    for (var i = 0; i < dArr.length; i++) {                     
+                        myToken.tokenInput("add", { id: dArr[i].id, name: dArr[i].name });
+                    }
+                }
+            }
+
+           
+        }
+
+
+
+        BranchList();
+
+        function BranchList() {
+            var ddlBrSelect = $("#ddlBrSelect option:selected").val() == '' ? '0' : $("#ddlBrSelect option:selected").val();
+            $('#spnError').text('');
+            var dId = $("#ddlDivision option:selected").val() == '' ? '0' : $("#ddlDivision option:selected").val();
+
+            if (ddlBrSelect == 0) {
+                if (dId > 0) {
+                    AllAccessBranch(0);
+                }
+            }
+            else {
+                AllAccessBranch(1);
+                var chkBrListVal = $("input[name=brListData]").val();
+                var brListVal = chkBrListVal.split(',');
+                for (i = 0; i < brListVal.length; i++) {
+                    $(".chkBrnachlist:checkbox[value='" + brListVal[i] + "']").prop('checked', true);
+                }
+            }
+            chkBrListData();
+        }
+
+     
+        pty();
+        function pty() {
+
+            chkBrListData();
+            var divId = $("#ddlDivision option:selected").val() == '' ? '0' : $("#ddlDivision option:selected").val();
+            var hdnBr = $("#hdn_brListData").val() == '' ? '0' : $("#hdn_brListData").val();
+            var brSelect = $("#ddlBrSelect option:selected").val() == '' ? '0' : $("#ddlBrSelect option:selected").val();
+
+            if (brSelect == '0') { }
+            else {
+                hdnBr = 0;
+            }
+
+            var url = 'Rpt_GetPartyList?rid=0&did=' + divId + '&brid=0&paid=0&hdnStn=' + hdnBr + "&term=";
+            $("#txtPartList").show();
+
+            if ($(".token-input-list").length > 0) {
+            }
+            else {
+                chkBrListData();
+                $('.token-input-list').remove();
+                $("#txtPartList").tokenInput(url, {
+                    preventDuplicates: true,
+                    minChars: 4,
+                    tokenLimit: 20,
+                    hintText: "Type Party Name",
+                    noResultsText: "No Result",
+                    queryParam: "term"
+                });
+            }
+        }    
+
+        $('#token-input-txtPartList').keydown(function (e) {         
+            if ($('.token-input-list li').length > 1) {
+                $(".token-input-dropdown p").text('Cannot select more then one');
+                e.preventDefault();
+                return false
+            }
+        });
+    });
+
+</script>
+
+<style>
+    .chosen-container {
+        min-width: 100% !important;
+    }
+</style>
