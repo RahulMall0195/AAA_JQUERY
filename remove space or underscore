@@ -1,0 +1,5 @@
+$("#txt_MR_NO").on("keyup", function () {
+            var currentValue = $(this).val();
+            var newValue = currentValue.replace(' ',"");
+            $(this).val(newValue);          
+        });
