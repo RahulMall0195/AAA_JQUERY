@@ -1,0 +1,16 @@
+   var selectedCheckboxes = [];
+        $('input[type="checkbox"].acelist').on('click', function () {
+            var checkboxValue = $(this).attr('id');
+          
+            if ($(this).prop('checked')) {
+                selectedCheckboxes.push(checkboxValue);                
+            } else {
+                var index = selectedCheckboxes.indexOf(checkboxValue);
+                if (index !== -1) {
+                    selectedCheckboxes.splice(index, 1);
+                }
+            }          
+        });
+
+
+//---------heldup
