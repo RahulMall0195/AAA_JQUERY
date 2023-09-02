@@ -1,0 +1,10 @@
+   var i = 0;
+        $(document).on('change', 'div.ui-checkbox', function () {
+            if ($(".chkBrnachlist").is(":checked") == true) {
+                i++;
+            }
+            if ($(".chkBrnachlist").is(":checked") == false) {
+                i = 0;
+            }
+            chkBrListData();
+        });
