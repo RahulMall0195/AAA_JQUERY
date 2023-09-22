@@ -1,0 +1,31 @@
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+
+<table>
+  <tr>
+    <td>1</td>
+    <td>2</td>
+    <td>3</td>
+    <td>4</td>
+    <td>5</td>
+    <td>6</td>  
+    <!-- More <td> elements -->
+  </tr>
+</table>
+
+<script>
+
+$(document).ready(function() {
+  $('table tr').each(function() {
+    var $tds = $(this).find('td');
+    if ($tds.length > 4) {
+      for (var i = 4; i < $tds.length; i += 4) {
+        var $newTr = $('<tr></tr>');
+        $tds.slice(i, i + 4).appendTo($newTr);
+        $newTr.insertAfter($(this));
+      }
+    }
+  });
+});
+
+</script>
