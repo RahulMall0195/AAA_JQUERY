@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Amount to Words in Rupees</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <h1>Convert Amount to Words in Rupees</h1>
+    <label for="amount">Enter Amount in Rupees:</label>
+    <input type="number" id="amountInput">
+    <button id="convertButton">Convert to Words</button>
+    <p id="result"></p>
+</body>
+</html>
+    <script>
+        $(document).ready(function() {
+            $('#convertButton').on('click', function() {
+                const amount = $('#amountInput').val();
+                const words = convertToWordsRupees(parseInt(amount));
+                $('#result').text(`In words: ${words} Rupees Only`);
+            });
+        });
+
+        function convertToWordsRupees(amount) {
+            const units = ["", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine"];
+            const teens = ["", "Eleven", "Twelve", "Thirteen", "Fourteen", "Fifteen", "Sixteen", "Seventeen", "Eighteen", "Nineteen"];
+            const tens = ["", "Ten", "Twenty", "Thirty", "Forty", "Fifty", "Sixty", "Seventy", "Eighty", "Ninety"];
+
+            function convertLessThanOneThousand(num) {
+                if (num === 0) return "";
+                if (num < 10) return units[num];
+                if (num < 20) return teens[num - 10];
+                const digit = num % 10;
+                const ten = Math.floor(num / 10);
+                return tens[ten] + " " + units[digit];
+            }
+
+            if (amount === 0) return "Zero";
+
+            let result = "";
+            if (Math.floor(amount / 10000000) > 0) {
+                result += convertLessThanOneThousand(Math.floor(amount / 10000000)) + " Crore ";
+                amount %= 10000000;
+            }
+            if (Math.floor(amount / 100000) > 0) {
+                result += convertLessThanOneThousand(Math.floor(amount / 100000)) + " Lakh ";
+                amount %= 100000;
+            }
+            if (Math.floor(amount / 1000) > 0) {
+                result += convertLessThanOneThousand(Math.floor(amount / 1000)) + " Thousand ";
+                amount %= 1000;
+            }
+            if (Math.floor(amount / 100) > 0) {
+                result += convertLessThanOneThousand(Math.floor(amount / 100)) + " Hundred ";
+                amount %= 100;
+            }
+            if (amount > 0) {
+                result += convertLessThanOneThousand(amount);
+            }
+
+            return result.trim();
+        }
+    </script>
+
