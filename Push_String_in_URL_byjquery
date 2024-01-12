@@ -1,0 +1,31 @@
+  let a = 0;
+        if (a == 0) {
+            var url;
+            if ($("#hdnIBT_DEBIT_CREDIT").val() == 'C') {
+                url = '/IBT/IBTEntry?x=Sc86jf5BVmuvUGqHGesaAV9UVqtxoVGdr';
+            } else {
+                url = '/IBT/IBTEntry?x=UOueVl9ocBupR4psLtIsJh6tT5IlXVd5J';
+            }
+
+            history.pushState({ path: url }, '', url);
+            a = 1;
+        }
+
+
+        $('#btnReset').click(function (e) {
+            CheckSession(e);
+
+            if ($("#hdnIBT_DEBIT_CREDIT").val() == 'C') {
+                var url = '/IBT/IBTEntry?x=Sc86jf5BVmuvUGqHGesaAV9UVqtxoVGdr';
+                window.location.href = url;
+            }
+            else {
+                var url = '/IBT/IBTEntry?x=UOueVl9ocBupR4psLtIsJh6tT5IlXVd5J';
+                window.location.href = url;
+            }
+
+            @*var url = '@Url.Action("IBTEntry", "IBT")';
+            window.location.href = url;*@
+        });
+
+   
