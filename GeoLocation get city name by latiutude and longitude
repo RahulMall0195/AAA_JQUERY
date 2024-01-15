@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY"></script>
+    <title>Reverse Geocoding Example</title>
+</head>
+<body>
+    <div id="result"></div>
+
+    <script>
+       $(document).ready(function() {
+    // Function to get city name from latitude and longitude
+    function getCityName(lat, lng) {
+        var latlng = new google.maps.LatLng(lat, lng);
+        var geocoder = new google.maps.Geocoder();
+
+        geocoder.geocode({'latLng': latlng}, function(results, status) {
+            if (status == google.maps.GeocoderStatus.OK) {
+                if (results[1]) {
+                    var city = "";
+                    for (var i = 0; i < results[0].address_components.length; i++) {
+                        for (var j = 0; j < results[0].address_components[i].types.length; j++) {
+                            if (results[0].address_components[i].types[j] == "locality") {
+                                city = results[0].address_components[i].long_name;
+                                break;
+                            }
+                        }
+                    }
+                    $("#result").html("City: " + city);
+                } else {
+                    $("#result").html("No results found");
+                }
+            } else {
+                $("#result").html("Geocoder failed due to: " + status);
+            }
+        });
+    }
+
+    // Example usage
+    var latitude = 37.7749; // Replace with your latitude
+    var longitude = -122.4194; // Replace with your longitude
+
+    getCityName(latitude, longitude);
+});
+
+    </script>
+</body>
+</html>
+
+
+
+
+
+<!-- 
+
+ You can use reverse geocoding to get the city name from latitude and longitude coordinates. Google Maps API is commonly used for this purpose. Here's an example using HTML and jQuery:
+
+    Get an API Key:
+        Go to the Google Cloud Console.
+        Create a new project or select an existing one.
+        Enable the "Geocoding API" for your project.
+        Create API credentials (an API key).
+
+    Include jQuery and Google Maps API in your HTML:
+
+    Replace YOUR_API_KEY with the API key you obtained.
+-->
