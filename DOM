@@ -1,0 +1,10 @@
+DOM stands for Document Object Model. It is a programming interface for web documents. When a web page is loaded, the browser creates a DOM representation of the page, which is a hierarchical structure of objects representing each element on the page. These objects can be manipulated using scripting languages like JavaScript.
+
+The DOM provides a way for scripts to dynamically access and modify the content, structure, and style of web documents. It allows developers to interact with HTML, XML, and XHTML documents as structured trees of objects. This enables tasks such as:
+
+    Accessing and modifying elements and their attributes.
+    Adding or removing elements dynamically.
+    Responding to user events like clicks and keystrokes.
+    Changing the styles and classes of elements.
+
+The DOM is a key component of web development and is supported by all modern web browsers. It provides a standardized way for scripts to interact with web pages, making it easier to create dynamic and interactive web applications.
